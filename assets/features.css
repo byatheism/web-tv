@@ -36,7 +36,7 @@ progress::-webkit-progress-value{background:#f3bb57;border-radius:5px}
   #schedule li:nth-child(n+3){display:none}
   .panel p#now{-webkit-line-clamp:2}
   .panel p#current-time{font-size:11px}
-  footer{font-size:12px}
+  
 }
 @media(max-width:899px){
   #current-time{font-size:14px}
