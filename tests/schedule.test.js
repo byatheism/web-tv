@@ -37,6 +37,6 @@ test('future season contains every episode in order over seven evenings',()=>{
 test('flags the pre-existing episode order issue without rewriting history',()=>{
  const list=warnings(catalog,schedule);assert.ok(list.some(p=>p.message.includes('9 → 11')));assert.ok(list.some(p=>p.message.includes('11 → 10')));
 });
-test('clock uses response time plus age and safely ignores invalid headers',()=>{
- const c=new BroadcastClock();const response={headers:new Headers({date:'Tue, 06 Oct 2026 18:30:00 GMT',age:'2'})};c.sync(response,100);assert.ok(Math.abs(c.now()-Date.parse('2026-10-06T18:30:02.050Z'))<50);const before=c.now();c.sync({headers:new Headers()},100);assert.ok(c.now()-before<50);
+test('clock follows the browser clock and ignores server time offsets',()=>{
+ const c=new BroadcastClock(),before=Date.now();const response={headers:new Headers({date:'Tue, 06 Oct 2026 18:30:00 GMT',age:'120'})};c.sync(response,100);const now=c.now();assert.ok(now>=before&&now<=Date.now()+5);assert.equal(c.synced,false);
 });
