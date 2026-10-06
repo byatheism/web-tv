@@ -54,13 +54,9 @@ export function buildBlock(catalog, videoIds, start, prefix='show') {
   });
 }
 export class BroadcastClock {
-  constructor(){this.base=Date.now();this.mark=performance.now();this.synced=false;}
-  now(){return this.base+performance.now()-this.mark;}
-  sync(response, elapsed){
-    const date=Date.parse(response.headers.get('date')), age=Number(response.headers.get('age') || 0);
-    if(!Number.isFinite(date)||!Number.isFinite(age)||age<0||elapsed>3000)return;
-    this.base=date+age*1000+elapsed/2;this.mark=performance.now();this.synced=true;
-  }
+  constructor(){this.synced=false;}
+  now(){return Date.now();}
+  sync(){this.synced=false;}
 }
 export class Programme {
   constructor(clock={now:()=>Date.now()}){this.clock=clock;this.catalog=null;this.programs=[];this.raw=null;this.loading=false;this.warning='';}
