@@ -45,9 +45,9 @@ python -m http.server 8000
 ```
 
 Основные модули:
-- `assets/schedule.js` — загрузка и проверка программы;
-- `assets/media.js` — YouTube / HTML video;
-- `assets/player.js` — логика эфира;
-- `assets/common.js` — общие функции интерфейса;
-- `assets/style.css` — основной вид телевизора и обрезка YouTube;
-- `assets/features.css` — дополнительные стили интерфейса.
+- `assets/schedule.js` - загрузка и проверка программы;
+- `assets/media.js` - YouTube / HTML video;
+- `assets/player.js` - логика эфира;
+- `assets/common.js` - общие функции интерфейса;
+- `assets/style.css` - основной вид телевизора и обрезка YouTube;
+- `assets/features.css` - дополнительные стили интерфейса.
