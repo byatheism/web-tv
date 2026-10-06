@@ -8,7 +8,7 @@ const instant=Date.parse('2026-10-06T21:25:00+03:00');
 test('published broadcasts have valid boundaries, including gaps and end of season',()=>{
  const {programs}=validate(catalog,schedule),p=new Programme();p.accept(catalog,schedule,false);
  for(const show of programs){assert.equal(p.active(show.startMs)?.id,show.id);assert.equal(p.active(show.endMs-1)?.id,show.id);assert.notEqual(p.active(show.endMs)?.id,show.id);}
- assert.equal(p.active(programs.at(-1).endMs),null);assert.equal(p.active(Date.parse('2026-10-07T19:59:59+03:00')),null);
+ assert.equal(p.active(programs.at(-1).endMs),null);assert.equal(p.active(Date.parse('2026-10-06T23:31:20+03:00')),null);
  assert.equal(p.next(instant)[0].video,'civilisation-12');
 });
 test('reject overlapping shows, missing videos and dates without explicit zone',()=>{
