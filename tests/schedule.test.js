@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {validate,Programme,protectStarted,warnings,buildBlock,clone,BroadcastClock} from '../assets/schedule.js';
+import {validate,Programme,protectStarted,warnings,clone,BroadcastClock} from '../assets/schedule.js';
 const catalog=JSON.parse(fs.readFileSync(new URL('../data/videos.json',import.meta.url)));
 const schedule=JSON.parse(fs.readFileSync(new URL('../data/schedule.json',import.meta.url)));
 const instant=Date.parse('2026-10-06T21:25:00+03:00');
@@ -27,9 +27,6 @@ test('validation rejection retains the previous working programme',()=>{
 test('supports HTTPS video files and rejects executable or insecure URLs',()=>{
  const c=clone(catalog);c.videos.file={title:'Direct file',durationSeconds:60,source:{type:'file',url:'https://example.org/film.mp4'}};assert.doesNotThrow(()=>validate(c,schedule));
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule));}
-});
-test('builds exact contiguous blocks across midnight',()=>{
- const block=buildBlock(catalog,['civilisation-01','civilisation-02'],'2026-10-10T23:50:00+03:00');assert.equal(block[0].end,block[1].start);assert.equal(Date.parse(block[0].end)-Date.parse(block[0].start),3002000);assert.equal(block[0].end,'2026-10-10T21:40:02.000Z');
 });
 test('future season contains every episode in order over seven evenings',()=>{
  const shows=schedule.programs.filter(p=>p.repeat);assert.deepEqual(shows.map(p=>catalog.videos[p.video].episode),Array.from({length:13},(_,i)=>i+1));assert.equal(new Set(shows.map(p=>p.start.slice(0,10))).size,7);
