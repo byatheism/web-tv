@@ -1,6 +1,6 @@
-import {Programme,BroadcastClock} from './schedule.js?v=0.2.6';
-import {$,time,date,el,duration} from './common.js?v=0.2.6';
-import {createMedia,loadYouTube} from './media.js?v=0.2.6';
+import {Programme,BroadcastClock} from './schedule.js?v=0.2.7';
+import {$,time,date,el,duration} from './common.js?v=0.2.7';
+import {createMedia,loadYouTube} from './media.js?v=0.2.7';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
