@@ -28,8 +28,12 @@ test('supports HTTPS video files and rejects executable or insecure URLs',()=>{
  const c=clone(catalog);c.videos.file={title:'Direct file',durationSeconds:60,source:{type:'file',url:'https://example.org/film.mp4'}};assert.doesNotThrow(()=>validate(c,schedule));
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule));}
 });
-test('future season contains every episode in order over seven evenings',()=>{
- const shows=schedule.programs.filter(p=>p.repeat);assert.deepEqual(shows.map(p=>catalog.videos[p.video].episode),Array.from({length:13},(_,i)=>i+1));assert.equal(new Set(shows.map(p=>p.start.slice(0,10))).size,7);
+test('future programme switches from Civilisation to Voyages of Discovery',()=>{
+ const shows=schedule.programs.filter(p=>p.id.startsWith('voyages-discovery-'));
+ assert.deepEqual(shows.map(p=>catalog.videos[p.video].episode),[1,2,3,4,5]);
+ assert.equal(new Set(shows.map(p=>p.start.slice(0,10))).size,5);
+ assert.ok(shows.every(p=>p.start.includes('T20:00:00+03:00')));
+ assert.equal(schedule.programs.some(p=>p.id.includes('civilisation-')&&p.start>='2026-10-07T00:00:00+03:00'),false);
 });
 test('flags the pre-existing episode order issue without rewriting history',()=>{
  const list=warnings(catalog,schedule);assert.ok(list.some(p=>p.message.includes('9 → 11')));assert.ok(list.some(p=>p.message.includes('11 → 10')));
