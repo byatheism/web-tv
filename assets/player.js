@@ -101,7 +101,7 @@ async function start(p){
         retries=0;
         lastProgress=clock.now();
         $('status').textContent='';
-        setTimeout(()=>{if(valid())setStartCover(false);},350);
+        setTimeout(()=>{if(valid())setStartCover(false);},900);
       },
       paused(){
         if(valid()&&ready&&!failed&&!document.hidden)media?.play();
