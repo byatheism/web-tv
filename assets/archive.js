@@ -1,5 +1,5 @@
-import {Programme} from './schedule.js';
-import {$,el,metadata,duration,sourceURL} from './common.js';
+import {Programme} from './schedule.js?v=0.2.1';
+import {$,el,metadata,duration,sourceURL} from './common.js?v=0.2.1';
 const programme=new Programme();let entries=[];
 function close(){$('archive-player').replaceChildren();$('watch').hidden=true;history.replaceState(null,'',location.pathname+location.search);}
 function watch(id,v){

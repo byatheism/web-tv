@@ -1,5 +1,5 @@
-import {Programme,clone,validate,protectStarted,warnings,buildBlock,BroadcastClock} from './schedule.js';
-import {$,el,dayKey,time,date,download} from './common.js';
+import {Programme,clone,validate,protectStarted,warnings,buildBlock,BroadcastClock} from './schedule.js?v=0.2.1';
+import {$,el,dayKey,time,date,download} from './common.js?v=0.2.1';
 const clock=new BroadcastClock(),programme=new Programme(clock),DRAFT='web-tv:editor-draft:v1';
 let catalog,schedule,published,queue=[],dragIndex=null,dirty=false;
 const formKeys=['title','series','category','year','country','author','summary'];

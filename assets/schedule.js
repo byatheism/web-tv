@@ -79,9 +79,9 @@ export class Programme {
   async refresh(initial=false){
     if(this.loading)return !!this.raw;this.loading=true;
     try{
-      const started=performance.now(), scheduleURL=new URL('../data/schedule.json',import.meta.url);
-      scheduleURL.searchParams.set('t',String(Date.now()));
-      const [a,b]=await Promise.all([fetch(new URL('../data/videos.json',import.meta.url),{cache:'no-store'}),fetch(scheduleURL,{cache:'no-store'})]);
+      const started=performance.now(), scheduleURL=new URL('../data/schedule.json',import.meta.url), catalogURL=new URL('../data/videos.json',import.meta.url);
+      const stamp=String(Date.now());scheduleURL.searchParams.set('t',stamp);catalogURL.searchParams.set('t',stamp);
+      const [a,b]=await Promise.all([fetch(catalogURL,{cache:'no-store'}),fetch(scheduleURL,{cache:'no-store'})]);
       if(!a.ok||!b.ok)throw Error('Ошибка загрузки данных');
       const elapsed=performance.now()-started;
       const [catalog,schedule]=await Promise.all([a.json(),b.json()]);
