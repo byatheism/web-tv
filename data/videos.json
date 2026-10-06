@@ -1,1 +1,283 @@
-{"version":2,"videos":{"nofx-1998":{"title":"NOFX — Live at Pinkpop 1998","durationSeconds":3696,"source":{"type":"youtube","videoId":"srjLh2cmSAI"}},"chuck-1965":{"title":"Chuck Berry — Live TV Show, Belgium 1965","durationSeconds":1665,"source":{"type":"youtube","videoId":"jQuOwpMn_Ow"}},"offspring-2024":{"title":"The Offspring — SMASH 30th Anniversary Concert","durationSeconds":2478,"source":{"type":"youtube","videoId":"6Y07dv1cO5Y"}},"amy-2008":{"title":"Amy Winehouse — Concert 2008","durationSeconds":3493,"source":{"type":"youtube","videoId":"8Poc65uzT1s"}},"carl-1985":{"title":"Carl Perkins — Capitol Theatre 1985","durationSeconds":2785,"source":{"type":"youtube","videoId":"vsTH1tgIh2E"}},"motorhead-2006":{"title":"Motörhead — Wacken Open Air 2006","durationSeconds":4558,"source":{"type":"youtube","videoId":"8wP5WFZmB3A"}},"beatles-1969":{"title":"The Beatles — Rooftop Concert","durationSeconds":759,"source":{"type":"youtube","videoId":"Js0G-gYXxZg"}},"civilisation-01":{"title":"Цивилизация — 1. На грани выживания","durationSeconds":3002,"source":{"type":"youtube","videoId":"xN069sbgPg0"}},"civilisation-02":{"title":"Цивилизация — 2. Великая оттепель","durationSeconds":2904,"source":{"type":"youtube","videoId":"CPgAkffRGfA"}},"civilisation-03":{"title":"Цивилизация — 3. Выдумка и реальность","durationSeconds":2988,"source":{"type":"youtube","videoId":"Wl3wJeHufU8"}},"civilisation-04":{"title":"Цивилизация — 4. Человек — мера всех вещей","durationSeconds":2971,"source":{"type":"youtube","videoId":"KB3Vg_S7nDw"}},"civilisation-05":{"title":"Цивилизация — 5. Герой как художник","durationSeconds":2953,"source":{"type":"youtube","videoId":"GcGaBT2SKrA"}},"civilisation-06":{"title":"Цивилизация — 6. Протест и коммуникация","durationSeconds":3006,"source":{"type":"youtube","videoId":"OZLUDxZWI_U"}},"civilisation-07":{"title":"Цивилизация — 7. Величие и смирение","durationSeconds":2938,"source":{"type":"youtube","videoId":"KhBqU0APxGw"}},"civilisation-08":{"title":"Цивилизация — 8. Свет опыта","durationSeconds":2960,"source":{"type":"youtube","videoId":"X7U2RnutF3o"}},"civilisation-09":{"title":"Цивилизация — 9. Стремление к счастью","durationSeconds":3001,"source":{"type":"youtube","videoId":"DJkVd4MDZ6A"}},"civilisation-11":{"title":"Цивилизация — 11. Поклонение природе","durationSeconds":2986,"source":{"type":"youtube","videoId":"r44M8Z79KKs"}},"civilisation-10":{"title":"Цивилизация — 10. Улыбка разума","durationSeconds":2941,"source":{"type":"youtube","videoId":"GuGQZOUYCnY"}},"civilisation-12":{"title":"Цивилизация — 12. Заблуждение надежды","durationSeconds":2971,"source":{"type":"youtube","videoId":"QfghWLnsSss"}},"civilisation-13":{"title":"Цивилизация — 13. Героический материализм","durationSeconds":3065,"source":{"type":"youtube","videoId":"LsvbXhd4xfg"}}}}
+{
+  "version": 3,
+  "videos": {
+    "nofx-1998": {
+      "title": "NOFX — Live at Pinkpop 1998",
+      "durationSeconds": 3696,
+      "source": {
+        "type": "youtube",
+        "videoId": "srjLh2cmSAI"
+      },
+      "category": "Музыка",
+      "archive": true
+    },
+    "chuck-1965": {
+      "title": "Chuck Berry — Live TV Show, Belgium 1965",
+      "durationSeconds": 1665,
+      "source": {
+        "type": "youtube",
+        "videoId": "jQuOwpMn_Ow"
+      },
+      "category": "Музыка",
+      "archive": true
+    },
+    "offspring-2024": {
+      "title": "The Offspring — SMASH 30th Anniversary Concert",
+      "durationSeconds": 2478,
+      "source": {
+        "type": "youtube",
+        "videoId": "6Y07dv1cO5Y"
+      },
+      "category": "Музыка",
+      "archive": true
+    },
+    "amy-2008": {
+      "title": "Amy Winehouse — Concert 2008",
+      "durationSeconds": 3493,
+      "source": {
+        "type": "youtube",
+        "videoId": "8Poc65uzT1s"
+      },
+      "category": "Музыка",
+      "archive": true
+    },
+    "carl-1985": {
+      "title": "Carl Perkins — Capitol Theatre 1985",
+      "durationSeconds": 2785,
+      "source": {
+        "type": "youtube",
+        "videoId": "vsTH1tgIh2E"
+      },
+      "category": "Музыка",
+      "archive": true
+    },
+    "motorhead-2006": {
+      "title": "Motörhead — Wacken Open Air 2006",
+      "durationSeconds": 4558,
+      "source": {
+        "type": "youtube",
+        "videoId": "8wP5WFZmB3A"
+      },
+      "category": "Музыка",
+      "archive": true
+    },
+    "beatles-1969": {
+      "title": "The Beatles — Rooftop Concert",
+      "durationSeconds": 759,
+      "source": {
+        "type": "youtube",
+        "videoId": "Js0G-gYXxZg"
+      },
+      "category": "Музыка",
+      "archive": true
+    },
+    "civilisation-01": {
+      "title": "Цивилизация — 1. На грани выживания",
+      "durationSeconds": 3002,
+      "source": {
+        "type": "youtube",
+        "videoId": "xN069sbgPg0"
+      },
+      "series": "Цивилизация",
+      "episode": 1,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Как искусство Европы пережило раннее Средневековье.",
+      "archive": true
+    },
+    "civilisation-02": {
+      "title": "Цивилизация — 2. Великая оттепель",
+      "durationSeconds": 2904,
+      "source": {
+        "type": "youtube",
+        "videoId": "CPgAkffRGfA"
+      },
+      "series": "Цивилизация",
+      "episode": 2,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Возрождение европейской культуры в XII веке.",
+      "archive": true
+    },
+    "civilisation-03": {
+      "title": "Цивилизация — 3. Выдумка и реальность",
+      "durationSeconds": 2988,
+      "source": {
+        "type": "youtube",
+        "videoId": "Wl3wJeHufU8"
+      },
+      "series": "Цивилизация",
+      "episode": 3,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Франция и Италия: дух позднего Средневековья.",
+      "archive": true
+    },
+    "civilisation-04": {
+      "title": "Цивилизация — 4. Человек — мера всех вещей",
+      "durationSeconds": 2971,
+      "source": {
+        "type": "youtube",
+        "videoId": "KB3Vg_S7nDw"
+      },
+      "series": "Цивилизация",
+      "episode": 4,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Человек и идеалы эпохи Возрождения.",
+      "archive": true
+    },
+    "civilisation-05": {
+      "title": "Цивилизация — 5. Герой как художник",
+      "durationSeconds": 2953,
+      "source": {
+        "type": "youtube",
+        "videoId": "GcGaBT2SKrA"
+      },
+      "series": "Цивилизация",
+      "episode": 5,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Микеланджело, Рафаэль и Леонардо да Винчи.",
+      "archive": true
+    },
+    "civilisation-06": {
+      "title": "Цивилизация — 6. Протест и коммуникация",
+      "durationSeconds": 3006,
+      "source": {
+        "type": "youtube",
+        "videoId": "OZLUDxZWI_U"
+      },
+      "series": "Цивилизация",
+      "episode": 6,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Северная Европа, Реформация и роль печатного слова.",
+      "archive": true
+    },
+    "civilisation-07": {
+      "title": "Цивилизация — 7. Величие и смирение",
+      "durationSeconds": 2938,
+      "source": {
+        "type": "youtube",
+        "videoId": "KhBqU0APxGw"
+      },
+      "series": "Цивилизация",
+      "episode": 7,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Рим и католическая культура XVI века.",
+      "archive": true
+    },
+    "civilisation-08": {
+      "title": "Цивилизация — 8. Свет опыта",
+      "durationSeconds": 2960,
+      "source": {
+        "type": "youtube",
+        "videoId": "X7U2RnutF3o"
+      },
+      "series": "Цивилизация",
+      "episode": 8,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Голландия Рембрандта и Лондон Пёрселла и Рена.",
+      "archive": true
+    },
+    "civilisation-09": {
+      "title": "Цивилизация — 9. Стремление к счастью",
+      "durationSeconds": 3001,
+      "source": {
+        "type": "youtube",
+        "videoId": "DJkVd4MDZ6A"
+      },
+      "series": "Цивилизация",
+      "episode": 9,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Музыка XVIII века и архитектура рококо.",
+      "archive": true
+    },
+    "civilisation-11": {
+      "title": "Цивилизация — 11. Поклонение природе",
+      "durationSeconds": 2986,
+      "source": {
+        "type": "youtube",
+        "videoId": "r44M8Z79KKs"
+      },
+      "series": "Цивилизация",
+      "episode": 11,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Вера в божественность природы.",
+      "archive": true
+    },
+    "civilisation-10": {
+      "title": "Цивилизация — 10. Улыбка разума",
+      "durationSeconds": 2941,
+      "source": {
+        "type": "youtube",
+        "videoId": "GuGQZOUYCnY"
+      },
+      "series": "Цивилизация",
+      "episode": 10,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Истоки революционной политики XVIII века.",
+      "archive": true
+    },
+    "civilisation-12": {
+      "title": "Цивилизация — 12. Заблуждение надежды",
+      "durationSeconds": 2971,
+      "source": {
+        "type": "youtube",
+        "videoId": "QfghWLnsSss"
+      },
+      "series": "Цивилизация",
+      "episode": 12,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Романтизм и разочарование в его великих надеждах.",
+      "archive": true
+    },
+    "civilisation-13": {
+      "title": "Цивилизация — 13. Героический материализм",
+      "durationSeconds": 3065,
+      "source": {
+        "type": "youtube",
+        "videoId": "LsvbXhd4xfg"
+      },
+      "series": "Цивилизация",
+      "episode": 13,
+      "author": "Кеннет Кларк",
+      "country": "Великобритания · BBC",
+      "year": "1969",
+      "category": "История искусства",
+      "summary": "Материализм и гуманизм XIX-XX веков.",
+      "archive": true
+    }
+  }
+}
