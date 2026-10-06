@@ -1,1 +1,189 @@
-{"version":4,"catalogVersion":2,"edition":"civilisation-20261006-1230","programs":[{"id":"civilisation-20261006-01","video":"civilisation-01","start":"2026-10-06T12:30:00+03:00","end":"2026-10-06T13:20:02+03:00"},{"id":"civilisation-20261006-02","video":"civilisation-02","start":"2026-10-06T13:20:02+03:00","end":"2026-10-06T14:08:26+03:00"},{"id":"civilisation-20261006-03","video":"civilisation-03","start":"2026-10-06T14:08:26+03:00","end":"2026-10-06T14:58:14+03:00"},{"id":"civilisation-20261006-04","video":"civilisation-04","start":"2026-10-06T15:00:00+03:00","end":"2026-10-06T15:49:31+03:00"},{"id":"civilisation-20261006-05","video":"civilisation-05","start":"2026-10-06T15:50:00+03:00","end":"2026-10-06T16:39:13+03:00"},{"id":"civilisation-20261006-06","video":"civilisation-06","start":"2026-10-06T16:40:00+03:00","end":"2026-10-06T17:30:06+03:00"},{"id":"civilisation-20261006-07","video":"civilisation-07","start":"2026-10-06T17:35:00+03:00","end":"2026-10-06T18:23:58+03:00"},{"id":"civilisation-20261006-08","video":"civilisation-08","start":"2026-10-06T18:25:00+03:00","end":"2026-10-06T19:14:20+03:00"},{"id":"civilisation-20261006-09","video":"civilisation-09","start":"2026-10-06T19:15:00+03:00","end":"2026-10-06T20:05:01+03:00"},{"id":"civilisation-20261006-11","video":"civilisation-11","start":"2026-10-06T20:10:00+03:00","end":"2026-10-06T20:59:46+03:00"},{"id":"civilisation-20261006-10","video":"civilisation-10","start":"2026-10-06T21:00:00+03:00","end":"2026-10-06T21:49:01+03:00"},{"id":"civilisation-20261006-12","video":"civilisation-12","start":"2026-10-06T21:50:00+03:00","end":"2026-10-06T22:39:31+03:00"},{"id":"civilisation-20261006-13","video":"civilisation-13","start":"2026-10-06T22:40:00+03:00","end":"2026-10-06T23:31:05+03:00"}]}
+{
+  "version": 5,
+  "catalogVersion": 3,
+  "edition": "civilisation-20261006-1230",
+  "programs": [
+    {
+      "id": "civilisation-20261006-01",
+      "video": "civilisation-01",
+      "start": "2026-10-06T12:30:00+03:00",
+      "end": "2026-10-06T13:20:02+03:00"
+    },
+    {
+      "id": "civilisation-20261006-02",
+      "video": "civilisation-02",
+      "start": "2026-10-06T13:20:02+03:00",
+      "end": "2026-10-06T14:08:26+03:00"
+    },
+    {
+      "id": "civilisation-20261006-03",
+      "video": "civilisation-03",
+      "start": "2026-10-06T14:08:26+03:00",
+      "end": "2026-10-06T14:58:14+03:00"
+    },
+    {
+      "id": "civilisation-20261006-04",
+      "video": "civilisation-04",
+      "start": "2026-10-06T15:00:00+03:00",
+      "end": "2026-10-06T15:49:31+03:00"
+    },
+    {
+      "id": "civilisation-20261006-05",
+      "video": "civilisation-05",
+      "start": "2026-10-06T15:50:00+03:00",
+      "end": "2026-10-06T16:39:13+03:00"
+    },
+    {
+      "id": "civilisation-20261006-06",
+      "video": "civilisation-06",
+      "start": "2026-10-06T16:40:00+03:00",
+      "end": "2026-10-06T17:30:06+03:00"
+    },
+    {
+      "id": "civilisation-20261006-07",
+      "video": "civilisation-07",
+      "start": "2026-10-06T17:35:00+03:00",
+      "end": "2026-10-06T18:23:58+03:00"
+    },
+    {
+      "id": "civilisation-20261006-08",
+      "video": "civilisation-08",
+      "start": "2026-10-06T18:25:00+03:00",
+      "end": "2026-10-06T19:14:20+03:00"
+    },
+    {
+      "id": "civilisation-20261006-09",
+      "video": "civilisation-09",
+      "start": "2026-10-06T19:15:00+03:00",
+      "end": "2026-10-06T20:05:01+03:00"
+    },
+    {
+      "id": "civilisation-20261006-11",
+      "video": "civilisation-11",
+      "start": "2026-10-06T20:10:00+03:00",
+      "end": "2026-10-06T20:59:46+03:00"
+    },
+    {
+      "id": "civilisation-20261006-10",
+      "video": "civilisation-10",
+      "start": "2026-10-06T21:00:00+03:00",
+      "end": "2026-10-06T21:49:01+03:00"
+    },
+    {
+      "id": "civilisation-20261006-12",
+      "video": "civilisation-12",
+      "start": "2026-10-06T21:50:00+03:00",
+      "end": "2026-10-06T22:39:31+03:00"
+    },
+    {
+      "id": "civilisation-20261006-13",
+      "video": "civilisation-13",
+      "start": "2026-10-06T22:40:00+03:00",
+      "end": "2026-10-06T23:31:05+03:00"
+    },
+    {
+      "id": "civilisation-20261007-01-repeat",
+      "video": "civilisation-01",
+      "start": "2026-10-07T20:00:00+03:00",
+      "end": "2026-10-07T20:50:02+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261007-02-repeat",
+      "video": "civilisation-02",
+      "start": "2026-10-07T20:50:32+03:00",
+      "end": "2026-10-07T21:38:56+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261008-03-repeat",
+      "video": "civilisation-03",
+      "start": "2026-10-08T20:00:00+03:00",
+      "end": "2026-10-08T20:49:48+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261008-04-repeat",
+      "video": "civilisation-04",
+      "start": "2026-10-08T20:50:18+03:00",
+      "end": "2026-10-08T21:39:49+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261009-05-repeat",
+      "video": "civilisation-05",
+      "start": "2026-10-09T20:00:00+03:00",
+      "end": "2026-10-09T20:49:13+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261009-06-repeat",
+      "video": "civilisation-06",
+      "start": "2026-10-09T20:49:43+03:00",
+      "end": "2026-10-09T21:39:49+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261010-07-repeat",
+      "video": "civilisation-07",
+      "start": "2026-10-10T20:00:00+03:00",
+      "end": "2026-10-10T20:48:58+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261010-08-repeat",
+      "video": "civilisation-08",
+      "start": "2026-10-10T20:49:28+03:00",
+      "end": "2026-10-10T21:38:48+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261011-09-repeat",
+      "video": "civilisation-09",
+      "start": "2026-10-11T20:00:00+03:00",
+      "end": "2026-10-11T20:50:01+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261011-10-repeat",
+      "video": "civilisation-10",
+      "start": "2026-10-11T20:50:31+03:00",
+      "end": "2026-10-11T21:39:32+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261012-11-repeat",
+      "video": "civilisation-11",
+      "start": "2026-10-12T20:00:00+03:00",
+      "end": "2026-10-12T20:49:46+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261012-12-repeat",
+      "video": "civilisation-12",
+      "start": "2026-10-12T20:50:16+03:00",
+      "end": "2026-10-12T21:39:47+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    },
+    {
+      "id": "civilisation-20261013-13-repeat",
+      "video": "civilisation-13",
+      "start": "2026-10-13T20:00:00+03:00",
+      "end": "2026-10-13T20:51:05+03:00",
+      "repeat": true,
+      "theme": "История искусства · Цивилизация"
+    }
+  ]
+}

@@ -1,22 +1,99 @@
-import {Programme} from './schedule.js';
-const $=id=>document.getElementById(id),programme=new Programme(),fmt=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',hour12:false}),clockDate=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',day:'numeric',month:'long'}),clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
-function status(t){if($('status').textContent!==t)$('status').textContent=t;}
-function readSound(){try{const s=JSON.parse(localStorage.getItem('web-tv:sound'))||{},valid=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=100,v=valid(s.volume)?Math.round(s.volume):70;return{volume:v,muted:s.muted===true,lastAudible:valid(s.lastAudible)&&s.lastAudible>0?Math.round(s.lastAudible):(v>0?v:70)};}catch(e){return{volume:70,muted:false,lastAudible:70};}}
-const saved=readSound();let player=null,ready=false,powered=false,loaded=null,endedShowId=null,joining=false,failed=false,starting=false,generation=0,apiPromise=null,initialized=false,volume=saved.volume,muted=saved.muted,lastAudible=saved.lastAudible,listKey='';
-function saveSound(){try{localStorage.setItem('web-tv:sound',JSON.stringify({volume,muted,lastAudible}));}catch(e){}}
-function setPower(v){powered=v;const label=v?'Выключить телевизор':'Включить телевизор';$('power').title=label;$('power').setAttribute('aria-label',label);$('power').setAttribute('aria-pressed',String(v));$('tv').classList.toggle('on',v);$('standby').hidden=v;}
-function updateSound(){const silent=muted||volume===0,label=silent?'Включить звук':'Выключить звук';$('mute').classList.toggle('sound-muted',silent);$('mute').title=label;$('mute').setAttribute('aria-label',label);$('mute').setAttribute('aria-pressed',String(silent));$('volume').value=volume;$('volume').title='Громкость: '+volume+'%';$('volume').style.setProperty('--level',volume+'%');if(ready&&player){player.setVolume(volume);if(silent)player.mute();else player.unMute();}}
-function displayTitle(video){return video.title.replace(/[—–]/g,'-');}
-function render(){const now=Date.now(),current=programme.active(now),p=current&&current.id!==endedShowId?current:null,next=programme.next(now);$('clock').textContent=clockDate.format(now)+' · '+clockTime.format(now);if(!programme.raw)return p;const title=p?displayTitle(programme.video(p)):(next.length?'Перерыв между передачами':'Эфир завершён');if($('now').textContent!==title)$('now').textContent=title;$('tv').classList.toggle('no-program',!p);const offair=next.length?'Следующая передача начнётся\n'+fmt.format(next[0].startMs):'Эфир завершён. Новые показы пока не запланированы.';if($('offair').textContent!==offair)$('offair').textContent=offair;const key=JSON.stringify(next.map(x=>[x.id,x.start,programme.video(x).title]));if(key!==listKey){listKey=key;$('schedule').replaceChildren();for(const x of next){const li=document.createElement('li'),t=document.createElement('time'),d=document.createElement('div');t.textContent=fmt.format(x.startMs);d.textContent=displayTitle(programme.video(x));li.append(t,d);$('schedule').append(li);}if(!next.length){const li=document.createElement('li');li.textContent='Следующие показы пока не назначены.';$('schedule').append(li);}}return p;}
-function clearPlayer(){generation++;starting=false;ready=false;joining=false;loaded=null;const old=player;player=null;if(old){try{old.destroy();}catch(e){}}$('player')?.remove();const host=document.createElement('div');host.id='player';$('standby').parentNode.append(host);}
-function stopPlayback(){clearPlayer();endedShowId=null;setPower(false);status('');}
-function disableCaptions(target=player){if(!target)return;let modules;try{modules=target.getOptions?.();}catch(e){return;}if(!Array.isArray(modules)||!modules.includes('captions'))return;try{target.setOption?.('captions','track',{});}catch(e){}try{target.unloadModule?.('captions');}catch(e){}}
-function tune(){if(!ready||!player||!powered)return;const p=programme.active();if(!p){joining=false;loaded=null;player.pauseVideo();render();return;}failed=false;joining=true;const offset=Math.max(0,(Date.now()-p.startMs)/1000);if(loaded===p.id){player.seekTo(offset,true);player.playVideo();}else{loaded=p.id;player.loadVideoById({videoId:programme.video(p).source.videoId,startSeconds:offset});}disableCaptions();status('');}
-function tick(){const p=render();if(!powered)return;if(!p){if(player||starting)clearPlayer();return;}if(!player&&!starting){startPlayback();return;}if(ready&&loaded!==p.id)tune();}
-$('power').onclick=()=>{if(powered){stopPlayback();return;}if(!programme.raw)return;setPower(true);status('');tick();};
-$('volume').oninput=e=>{volume=Number(e.target.value);muted=volume===0;if(volume>0)lastAudible=volume;updateSound();saveSound();};$('mute').onclick=()=>{if(muted||volume===0){muted=false;if(volume===0)volume=lastAudible;}else{lastAudible=volume;muted=true;}updateSound();saveSound();};
-$('full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('tv').requestFullscreen();}catch(e){status('Полноэкранный режим недоступен в этом браузере.');}};document.addEventListener('fullscreenchange',()=>{const on=document.fullscreenElement===$('tv'),label=on?'Выйти из полного экрана':'Полный экран';$('full').title=label;$('full').setAttribute('aria-label',label);$('full').setAttribute('aria-pressed',String(on));});document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick();});
-function loadYouTube(){if(window.YT?.Player)return Promise.resolve();if(apiPromise)return apiPromise;apiPromise=new Promise((resolve,reject)=>{const timeout=setTimeout(()=>{apiPromise=null;reject(Error('YouTube API не ответил'));},20000);window.onYouTubeIframeAPIReady=()=>{clearTimeout(timeout);resolve();};let script=document.getElementById('youtube-api');if(!script){script=document.createElement('script');script.id='youtube-api';script.src='https://www.youtube.com/iframe_api';document.head.append(script);}script.onerror=()=>{clearTimeout(timeout);apiPromise=null;script.remove();reject(Error('Не удалось загрузить YouTube API'));};});return apiPromise;}
-async function startPlayback(){if(!powered||starting||!programme.active())return;const token=++generation;starting=true;failed=false;try{await loadYouTube();if(token!==generation||!powered)return;const p=programme.active();if(!p){starting=false;render();return;}player=new YT.Player('player',{videoId:programme.video(p).source.videoId,width:'100%',height:'100%',playerVars:{start:Math.floor(Math.max(0,(Date.now()-p.startMs)/1000)),controls:0,disablekb:1,playsinline:1,origin:location.origin},events:{onApiChange:e=>{if(token!==generation||!powered)return;disableCaptions(e.target);},onReady:e=>{if(token!==generation||!powered){try{e.target.destroy();}catch(ignore){}return;}player=e.target;ready=true;starting=false;loaded=null;const iframe=player.getIframe();iframe.setAttribute('tabindex','-1');iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');updateSound();tune();},onAutoplayBlocked:()=>{if(token!==generation||!powered)return;stopPlayback();status('Запуск заблокирован браузером. Нажмите кнопку питания ещё раз.');},onStateChange:e=>{if(token!==generation||!powered)return;const current=programme.active();if(e.data===1){if(!current){player.pauseVideo();return;}disableCaptions();if(joining){if(loaded!==current.id){tune();return;}joining=false;player.seekTo(Math.max(0,(Date.now()-current.startMs)/1000),true);updateSound();}status('');}if(e.data===2&&current&&loaded===current.id&&!failed)player.playVideo();if(e.data===0&&current&&loaded===current.id){let videoId='';try{videoId=e.target.getVideoData?.().video_id||'';}catch(ignore){}if(!videoId||videoId===programme.video(current).source.videoId){endedShowId=current.id;status('');tick();}}},onError:e=>{if(token!==generation||!powered)return;failed=true;joining=false;status('Ошибка YouTube '+e.data+'. Следующий показ будет выбран по расписанию.');}}});}catch(e){if(token!==generation||!powered)return;stopPlayback();status(e.message);}}
-async function init(){if(initialized)return;if(location.protocol==='file:'){status('Откройте опубликованный сайт, не локальный файл.');return;}if(!(await programme.refresh(true))){status('Не удалось загрузить программу. Повторим через минуту.');setTimeout(init,60000);return;}initialized=true;render();status('');for(const id of ['power','mute','volume'])$(id).disabled=false;loadYouTube().catch(()=>{});setInterval(async()=>{await programme.refresh();tick();},60000);}
-$('offair').style.whiteSpace='pre-line';setPower(false);updateSound();setInterval(tick,1000);init();
+import {Programme,BroadcastClock} from './schedule.js';
+import {$,time,date,dayKey,el,duration,metadata,showDetails,bindDialog} from './common.js';
+import {createMedia,loadYouTube} from './media.js';
+const clock=new BroadcastClock(),programme=new Programme(clock);
+const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+let powered=false,media=null,ready=false,starting=false,generation=0,loaded=null,ended=null,retries=0,retryAt=0,failed=false,lastProgress=0,lastPosition=-1,lastSync=0,joined=false,guideKey='',listKey='',infoKey='',selectedDay=dayKey(clock.now()),allDays=false,dayMode='today';
+let volume=70,muted=false,lastAudible=70;
+try{const s=JSON.parse(localStorage.getItem('web-tv:sound'));if(s){if(Number.isFinite(s.volume)&&s.volume>=0&&s.volume<=100)volume=s.volume;muted=s.muted===true;if(Number.isFinite(s.lastAudible)&&s.lastAudible>0&&s.lastAudible<=100)lastAudible=s.lastAudible;}}catch{}
+function saveSound(){try{localStorage.setItem('web-tv:sound',JSON.stringify({volume,muted,lastAudible}));}catch{}}
+function sound(){const silent=muted||volume===0,label=silent?'Включить звук':'Выключить звук';$('mute').classList.toggle('sound-muted',silent);$('mute').title=label;$('mute').setAttribute('aria-label',label);$('mute').setAttribute('aria-pressed',String(silent));$('volume').value=volume;$('volume').title=`Громкость: ${volume}%`;$('volume').style.setProperty('--level',volume+'%');if(ready&&media)media.sound(volume,silent);}
+function setPower(on){powered=on;$('tv').classList.toggle('on',on);$('standby').hidden=on;const label=on?'Выключить телевизор':'Включить телевизор';$('power').title=label;$('power').setAttribute('aria-label',label);$('power').setAttribute('aria-pressed',String(on));}
+function clearMedia(){generation++;ready=false;starting=false;joined=false;try{media?.destroy();}catch{}media=null;$('player')?.remove();document.querySelector('.native-player')?.remove();const host=el('div');host.id='player';$('standby').parentNode.append(host);}
+function resetShow(id){clearMedia();loaded=id;retries=0;retryAt=0;failed=false;ended=null;$('retry').hidden=true;}
+function fail(){
+  if(failed)return;failed=true;clearMedia();
+  retryAt=retries<2?clock.now()+(retries===0?4000:15000):Infinity;
+  $('retry').hidden=false;
+}
+function autoplayBlocked(){clearMedia();setPower(false);$('status').textContent='Нажмите кнопку питания ещё раз, чтобы разрешить воспроизведение.';}
+async function start(p){
+  if(starting||!powered||!p)return;
+  starting=true;failed=false;lastProgress=clock.now();lastPosition=-1;const token=++generation;
+  const valid=()=>token===generation&&powered&&programme.active()?.id===p.id;
+  try{
+    const result=await createMedia($('player'),programme.video(p),Math.max(0,(clock.now()-p.startMs)/1000),{
+      ready(m){if(!valid()){m.destroy();return;}media=m;ready=true;starting=false;sound();media.seek(Math.max(0,(clock.now()-p.startMs)/1000));media.play();},
+      playing(){if(!valid()||!media)return;if(!joined){joined=true;media.seek(Math.max(0,(clock.now()-p.startMs)/1000));}failed=false;$('retry').hidden=true;lastProgress=clock.now();$('status').textContent='';},
+      paused(){if(valid()&&ready&&!failed)media?.play();},
+      ended(){if(!valid())return;ended=p.id;clearMedia();},
+      error(){if(valid())fail();},blocked(){if(valid())autoplayBlocked();}
+    });
+    if(!valid()){result?.destroy();return;}if(result)media=result;
+  }catch{if(valid())fail();}
+}
+function synchronize(force=false){
+  if(!powered||!ready||!media||failed)return;
+  const p=programme.active(),now=clock.now();if(!p||p.id!==loaded)return;
+  if(!force&&now-lastSync<30000)return;lastSync=now;
+  try{const position=media.time(),expected=(now-p.startMs)/1000;if(media.state()===1&&Number.isFinite(position)&&Math.abs(position-expected)>8)media.seek(Math.max(0,expected));}catch{}
+}
+function renderGuide(now){
+  if(!programme.raw)return;
+  const current=programme.active(now),key=JSON.stringify([programme.raw.schedule,programme.catalog,selectedDay,allDays,current?.id,dayKey(now)]);
+  if(key===guideKey)return;guideKey=key;
+  const today=dayKey(now),tomorrow=dayKey(now+86400000);if(dayMode==='today')selectedDay=today;if(dayMode==='tomorrow')selectedDay=tomorrow;
+  for(const [id,day] of [['today',today],['tomorrow',tomorrow]]){$(id).setAttribute('aria-pressed',String(!allDays&&selectedDay===day));}
+  $('week').setAttribute('aria-pressed',String(allDays));$('guide-date').value=selectedDay;
+  const rows=programme.programs.filter(p=>allDays?dayKey(p.startMs)>=today&&dayKey(p.startMs)<=dayKey(now+6*86400000):dayKey(p.startMs)===selectedDay);
+  const host=$('guide-list');host.replaceChildren();let previousDay='';
+  for(const p of rows){const day=dayKey(p.startMs),v=programme.video(p);if(day!==previousDay){host.append(el('h3',date.format(p.startMs)));previousDay=day;}
+    const row=el('article',undefined,'guide-row'+(p.id===current?.id?' current':''));
+    const hours=el('div',time.format(p.startMs)+' — '+time.format(p.endMs),'guide-hours');
+    const detail=el('div');const button=el('button',v.title,'text-button');button.onclick=()=>showDetails(v);detail.append(button,el('p',[p.theme,v.category].filter(Boolean).join(' · '),'muted'));
+    const state=el('span',p.id===current?.id?'В эфире':p.endMs<=now?'Завершено':p.repeat?'Повтор':'','guide-badge');row.append(hours,detail,state);host.append(row);
+  }
+  if(!rows.length)host.append(el('p','На выбранный период показы пока не назначены.','muted'));
+}
+function render(){
+  const now=clock.now(),active=programme.active(now),p=active&&active.id!==ended?active:null,next=programme.next(now);
+  $('clock').textContent=date.format(now)+' · '+clockTime.format(now);
+  if(!programme.raw)return p;
+  $('now').textContent=p?programme.video(p).title:(next.length?'Перерыв между передачами':'Эфир завершён');
+  $('current-time').textContent=p?`${time.format(p.startMs)} — ${time.format(p.endMs)} · осталось ${Math.ceil((p.endMs-now)/60000)} мин.`:'';
+  $('show-progress').hidden=!p;if(p){$('show-progress').value=(now-p.startMs)/(p.endMs-p.startMs)*100;$('show-progress').setAttribute('aria-label','Прошло передачи');}
+  const slate=!p||failed;$('tv').classList.toggle('no-program',slate);
+  $('slate-clock').textContent=clockTime.format(now);
+  $('slate-heading').textContent=failed&&p?'Документальное телевидение':next.length?'Продолжение эфира':'До следующей встречи';
+  $('slate-title').textContent=failed&&p?programme.video(p).title:next.length?programme.video(next[0]).title:'Новые показы появятся в телепрограмме';
+  $('slate-countdown').textContent=next.length?`${date.format(next[0].startMs)}, ${time.format(next[0].startMs)} · через ${duration((next[0].startMs-now)/1000)}`:'';
+  const key=JSON.stringify(next.map(x=>[x.id,x.start,programme.video(x).title]));
+  if(key!==listKey){listKey=key;$('schedule').replaceChildren();for(const x of next){const li=el('li'),t=el('time',date.format(x.startMs)+' в '+time.format(x.startMs)),d=el('div',programme.video(x).title);li.append(t,d);$('schedule').append(li);}if(!next.length)$('schedule').append(el('li','Следующие показы пока не назначены.'));}
+  const infoVideo=programme.video(p||next[0]),ik=JSON.stringify(infoVideo);
+  if(ik!==infoKey){infoKey=ik;$('info-title').textContent=infoVideo?.series||'О передаче';$('info-meta').textContent=infoVideo?metadata(infoVideo):'';$('info-summary').textContent=infoVideo?.summary||'Авторское документальное телевидение.';$('info-more').hidden=!infoVideo;$('info-more').onclick=()=>infoVideo&&showDetails(infoVideo);}
+  renderGuide(now);return p;
+}
+function tick(){
+  const p=render();if(!powered)return;
+  if(!p){if(media||starting)clearMedia();return;}
+  if(loaded!==p.id)resetShow(p.id);
+  if(failed){if(clock.now()>=retryAt){retries++;clearMedia();start(p);}return;}
+  if(!media&&!starting){start(p);return;}
+  if((starting||ready)&&clock.now()-lastProgress>25000){fail();return;}
+  if(ready&&media){try{const pos=media.time();if(Number.isFinite(pos)&&Math.abs(pos-lastPosition)>.2){lastPosition=pos;lastProgress=clock.now();}}catch{}synchronize();}
+}
+$('power').onclick=()=>{if(powered){clearMedia();setPower(false);loaded=null;ended=null;failed=false;$('retry').hidden=true;$('status').textContent='';}else if(programme.raw){setPower(true);loaded=null;$('status').textContent='';tick();}};
+$('retry').onclick=()=>{const p=programme.active();if(p){resetShow(p.id);setPower(true);start(p);}};
+$('volume').oninput=e=>{volume=Number(e.target.value);muted=volume===0;if(volume>0)lastAudible=volume;sound();saveSound();};
+$('mute').onclick=()=>{if(muted||volume===0){muted=false;if(volume===0)volume=lastAudible;}else{lastAudible=volume;muted=true;}sound();saveSound();};
+$('full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('tv').requestFullscreen();}catch{$('status').textContent='Полноэкранный режим недоступен в этом браузере.';}};
+let hideTimer;function wake(){const tv=$('tv');tv.classList.remove('controls-hidden');clearTimeout(hideTimer);if(document.fullscreenElement===tv)hideTimer=setTimeout(()=>{if(!document.querySelector('.deck :focus-visible'))tv.classList.add('controls-hidden');},3000);}
+for(const event of ['pointermove','pointerdown','keydown','focusin'])$('tv').addEventListener(event,wake);
+$('tv').addEventListener('focusout',wake);
+document.addEventListener('fullscreenchange',()=>{const on=document.fullscreenElement===$('tv');$('full').setAttribute('aria-label',on?'Выйти из полного экрана':'Открыть на полный экран');$('full').setAttribute('aria-pressed',String(on));wake();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastProgress=clock.now();tick();synchronize(true);programme.refresh().then(tick);}});
+window.addEventListener('online',()=>{programme.refresh().then(()=>{if(powered&&failed){retryAt=0;retries=0;}tick();});});
+$('today').onclick=()=>{allDays=false;dayMode='today';selectedDay=dayKey(clock.now());renderGuide(clock.now());};$('tomorrow').onclick=()=>{allDays=false;dayMode='tomorrow';selectedDay=dayKey(clock.now()+86400000);renderGuide(clock.now());};$('week').onclick=()=>{allDays=true;dayMode='week';renderGuide(clock.now());};$('guide-date').onchange=e=>{if(e.target.value){allDays=false;dayMode='custom';selectedDay=e.target.value;renderGuide(clock.now());}};
+bindDialog();setPower(false);sound();
+async function init(){if(!(await programme.refresh(true))){$('status').textContent='Не удалось получить телепрограмму. Повторим через минуту.';setTimeout(init,60000);return;}$('status').textContent='';for(const id of ['power','mute','volume'])$(id).disabled=false;render();loadYouTube().catch(()=>{});setInterval(()=>programme.refresh().then(tick),60000);}
+setInterval(tick,1000);init();
