@@ -91,7 +91,7 @@ let hideTimer;function wake(){const tv=$('tv');tv.classList.remove('controls-hid
 for(const event of ['pointermove','pointerdown','keydown','focusin'])$('tv').addEventListener(event,wake);
 $('tv').addEventListener('focusout',wake);
 document.addEventListener('fullscreenchange',()=>{const on=document.fullscreenElement===$('tv');$('full').setAttribute('aria-label',on?'Выйти из полного экрана':'Открыть на полный экран');$('full').setAttribute('aria-pressed',String(on));wake();});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastProgress=clock.now();tick();synchronize(true);programme.refresh().then(tick);}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){const now=clock.now();lastProgress=now;lastSync=now;tick();programme.refresh().then(tick);}});
 window.addEventListener('online',()=>{programme.refresh().then(()=>{if(powered&&failed){retryAt=0;retries=0;}tick();});});
 $('today').onclick=()=>{allDays=false;dayMode='today';selectedDay=dayKey(clock.now());renderGuide(clock.now());};$('tomorrow').onclick=()=>{allDays=false;dayMode='tomorrow';selectedDay=dayKey(clock.now()+86400000);renderGuide(clock.now());};$('week').onclick=()=>{allDays=true;dayMode='week';renderGuide(clock.now());};$('guide-date').onchange=e=>{if(e.target.value){allDays=false;dayMode='custom';selectedDay=e.target.value;renderGuide(clock.now());}};
 bindDialog();setPower(false);sound();
