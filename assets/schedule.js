@@ -44,15 +44,6 @@ export function warnings(catalog, schedule) {
   }
   return result;
 }
-export function buildBlock(catalog, videoIds, start, prefix='show') {
-  let cursor=Date.parse(start);
-  if(!Number.isFinite(cursor)) throw Error('Укажите начало блока');
-  return videoIds.map((id,i) => {
-    const v=catalog.videos[id]; if(!v) throw Error('Видео не найдено: '+id);
-    const p={id:`${prefix}-${i+1}`,video:id,start:new Date(cursor).toISOString()};
-    cursor+=v.durationSeconds*1000;p.end=new Date(cursor).toISOString();return p;
-  });
-}
 export class BroadcastClock {
   constructor(){this.synced=false;}
   now(){return Date.now();}
