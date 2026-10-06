@@ -1,6 +1,6 @@
-import {Programme,BroadcastClock} from './schedule.js?v=0.2.5';
-import {$,time,date,el,duration} from './common.js?v=0.2.5';
-import {createMedia,loadYouTube} from './media.js?v=0.2.5';
+import {Programme,BroadcastClock} from './schedule.js?v=0.2.6';
+import {$,time,date,el,duration} from './common.js?v=0.2.6';
+import {createMedia,loadYouTube} from './media.js?v=0.2.6';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
@@ -141,7 +141,7 @@ function render(){
   $('clock').textContent=date.format(now)+' · '+clockTime.format(now);
   if(!programme.raw)return p;
   $('now').textContent=p?programme.video(p).title:(next.length?'Перерыв между передачами':'Эфир завершён');
-  $('current-time').textContent=p?`${time.format(p.startMs)} — ${time.format(p.endMs)} · осталось ${Math.ceil((p.endMs-now)/60000)} мин.`:'';
+  $('current-time').textContent=p?`${time.format(p.startMs)} - ${time.format(p.endMs)} · осталось ${Math.ceil((p.endMs-now)/60000)} мин.`:'';
   $('show-progress').hidden=!p;
   if(p){
     $('show-progress').value=(now-p.startMs)/(p.endMs-p.startMs)*100;
@@ -150,7 +150,7 @@ function render(){
   const slate=!p||failed;
   $('tv').classList.toggle('no-program',slate);
   $('slate-clock').textContent=clockTime.format(now);
-  $('slate-heading').textContent=failed&&p?'Документальное телевидение':next.length?'Продолжение эфира':'До следующей встречи';
+  $('slate-heading').textContent=next.length?'Продолжение эфира':'До следующей встречи';
   $('slate-title').textContent=failed&&p?programme.video(p).title:next.length?programme.video(next[0]).title:'Новые показы появятся позже';
   $('slate-countdown').textContent=next.length?`${date.format(next[0].startMs)}, ${time.format(next[0].startMs)} · через ${duration((next[0].startMs-now)/1000)}`:'';
   const key=JSON.stringify(next.map(x=>[x.id,x.start,programme.video(x).title]));
