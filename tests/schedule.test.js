@@ -28,14 +28,19 @@ test('supports HTTPS video files and rejects executable or insecure URLs',()=>{
  const c=clone(catalog);c.videos.file={title:'Direct file',durationSeconds:60,source:{type:'file',url:'https://example.org/film.mp4'}};assert.doesNotThrow(()=>validate(c,schedule));
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule));}
 });
-test('future programme strictly alternates documentary cycles',()=>{
+test('future programme alternates cycles and starts only on five-minute marks',()=>{
  const shows=schedule.programs.filter(p=>p.id.startsWith('alternating-'));
  assert.equal(shows.length,26);
  for(let i=0;i<shows.length;i++){
    const series=catalog.videos[shows[i].video].series;
    assert.equal(series,i%2===0?'Великие географические открытия':'Цивилизация');
    if(i>0)assert.notEqual(series,catalog.videos[shows[i-1].video].series);
+   const start=new Date(Date.parse(shows[i].start)+3*3600000);
+   assert.equal(start.getUTCMinutes()%5,0);
+   assert.equal(start.getUTCSeconds(),0);
+   if(i>0)assert.ok(Date.parse(shows[i].start)>Date.parse(shows[i-1].end));
  }
+ assert.equal(shows[0].start,'2026-10-06T23:35:00.000+03:00');
  assert.deepEqual(shows.filter((_,i)=>i%2===1).map(p=>catalog.videos[p.video].episode),Array.from({length:13},(_,i)=>i+1));
  assert.deepEqual(shows.filter((_,i)=>i%2===0).slice(0,6).map(p=>catalog.videos[p.video].episode),[1,2,3,4,5,1]);
 });
