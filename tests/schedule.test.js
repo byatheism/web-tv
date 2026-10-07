@@ -71,7 +71,7 @@ test('validation rejection retains the previous working programme',()=>{
 
 test('supports HTTPS video files, live webcam blocks and rejects insecure URLs',()=>{
  const c=clone(catalog);c.videos.file={title:'Direct file',durationSeconds:60,source:{type:'file',url:'https://example.org/film.mp4'}};assert.doesNotThrow(()=>validate(c,schedule,rotationNow));
- const live=clone(schedule);live.programs.push({id:'long-live-test',video:'cam-katmai-riffles',start:'2026-10-11T00:00:00+03:00',end:'2026-10-11T05:00:00+03:00'});assert.doesNotThrow(()=>validate(c,live,rotationNow));
+ const live=clone(schedule);live.rotation.enabled=false;live.programs.push({id:'long-live-test',video:'cam-katmai-riffles',start:'2026-10-11T00:00:00+03:00',end:'2026-10-11T05:00:00+03:00'});assert.doesNotThrow(()=>validate(c,live,rotationNow));
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule,rotationNow));}
 });
 
