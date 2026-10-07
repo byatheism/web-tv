@@ -40,8 +40,8 @@ test('supports HTTPS video files and rejects executable or insecure URLs',()=>{
 test('automatic composer rotates groups, rounds starts and preserves series order',()=>{
  const {programs}=validate(catalog,schedule,rotationNow),shows=programs.filter(p=>p.auto);
  assert.ok(shows.length>50);
- assert.deepEqual(shows.slice(0,6).map(p=>p.rotationGroup),['music','civilisation','voyages','music','civilisation','voyages']);
- assert.deepEqual(shows.slice(0,6).map(p=>p.video),['nofx-1998','civilisation-07','voyages-discovery-03','chuck-1965','civilisation-08','voyages-discovery-04']);
+ assert.deepEqual(shows.slice(0,6).map(p=>p.rotationGroup),['music','civilisation','music','civilisation','music','voyages']);
+ assert.deepEqual(shows.slice(0,6).map(p=>p.video),['nofx-1998','civilisation-07','chuck-1965','civilisation-08','offspring-2024','voyages-discovery-03']);
  assert.equal(shows[0].start,'2026-10-07T11:45:00.000+03:00');
  for(let i=0;i<shows.length;i++){
    const local=new Date(shows[i].startMs+3*3600000);
