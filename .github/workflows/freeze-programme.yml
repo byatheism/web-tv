@@ -35,7 +35,7 @@ jobs:
       - name: Commit fixed programme
         shell: bash
         run: |
-          if git diff --quiet -- data/fixed-schedule.json; then
+          if [ -z "$(git status --porcelain -- data/fixed-schedule.json)" ]; then
             echo "Fixed programme is unchanged"
             exit 0
           fi
