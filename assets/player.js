@@ -1,4 +1,4 @@
-import {Programme,BroadcastClock} from './schedule.js?v=0.4.0';
+import {Programme,BroadcastClock} from './schedule.js?v=0.5.0';
 import {$,time,date,el,duration} from './common.js?v=0.4.0';
 import {createMedia,loadYouTube} from './media.js?v=0.4.3';
 
@@ -238,7 +238,7 @@ function render(){
 
   const nextShow=next[0]||null;
   const toNext=nextShow?nextShow.startMs-now:Infinity;
-  const bumper=powered&&!p&&!failed&&nextShow&&toNext>0&&toNext<=programme.bumperSeconds()*1000;
+  const bumper=powered&&!failed&&nextShow&&toNext>0&&toNext<=programme.bumperSeconds()*1000&&(!p||p.filler);
   $('tv').classList.toggle('pre-roll',!!bumper);
   $('ident').hidden=!bumper;
   if(bumper){
