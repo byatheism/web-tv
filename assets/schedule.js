@@ -1,12 +1,129 @@
 const CACHE = 'web-tv:programme';
 const zoned = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
 export const clone = value => JSON.parse(JSON.stringify(value));
+
 export function safeURL(value) {
   try { const url = new URL(value); return url.protocol === 'https:' ? url.href : null; } catch { return null; }
 }
-export function validate(catalog, schedule) {
+
+function minskISO(ms){
+  return new Date(ms + 3 * 3600000).toISOString().replace('Z','+03:00');
+}
+function strictNextSlot(ms, minutes){
+  const step=minutes*60000;
+  return Math.floor(ms/step)*step+step;
+}
+function videoGroupMembers(catalog, group){
+  let ids=[];
+  if(group.type==='series'){
+    ids=Object.entries(catalog.videos).filter(([,v])=>v.series===group.value).sort((a,b)=>{
+      const ea=a[1].episode??Number.MAX_SAFE_INTEGER, eb=b[1].episode??Number.MAX_SAFE_INTEGER;
+      return ea-eb || a[1].title.localeCompare(b[1].title,'ru');
+    }).map(([id])=>id);
+  }else if(group.type==='category'){
+    ids=Object.entries(catalog.videos).filter(([,v])=>v.category===group.value).map(([id])=>id);
+  }else if(group.type==='ids'){
+    ids=(group.videos||[]).filter(id=>catalog.videos[id]);
+  }
+  if(!ids.length)throw Error('Пустая группа ротации: '+group.id);
+  return ids;
+}
+function stripRuntime(p){
+  const {startMs,endMs,...rest}=p;
+  return rest;
+}
+
+export function generateRotation(catalog, schedule, history, now=Date.now()){
+  const r=schedule.rotation;
+  if(!r?.enabled)return [];
+  if(!zoned.test(r.anchor)||!Number.isFinite(Date.parse(r.anchor)))throw Error('Некорректное начало авторотации');
+  const slotMinutes=Number.isInteger(r.slotMinutes)&&r.slotMinutes>=1?r.slotMinutes:5;
+  const horizonHours=Number.isFinite(r.horizonHours)&&r.horizonHours>=24?r.horizonHours:168;
+  const minRepeatHours=Number.isFinite(r.minRepeatHours)&&r.minRepeatHours>=0?r.minRepeatHours:12;
+  const anchorMs=Date.parse(r.anchor), horizonMs=Math.max(anchorMs,now)+horizonHours*3600000;
+  const groups=(r.groups||[]).map((g,index)=>{
+    if(!g||typeof g.id!=='string'||!g.id||!['series','category','ids'].includes(g.type))throw Error('Некорректная группа ротации');
+    return {...g,index,members:videoGroupMembers(catalog,g)};
+  });
+  if(groups.length<2)throw Error('Для ротации нужны минимум две группы');
+
+  const videoLast=new Map(), groupLast=new Map(groups.map(g=>[g.id,-Infinity])), ever=new Set();
+  const groupNext=new Map();
+  const orderedHistory=[...history].sort((a,b)=>a.startMs-b.startMs);
+
+  for(const g of groups){
+    let lastMember=-1;
+    for(const p of orderedHistory){
+      const idx=g.members.indexOf(p.video);
+      if(idx>=0){
+        lastMember=idx;
+        groupLast.set(g.id,p.startMs);
+      }
+    }
+    groupNext.set(g.id,(lastMember+1+g.members.length)%g.members.length);
+  }
+  for(const p of orderedHistory){
+    videoLast.set(p.video,p.startMs);
+    ever.add(p.video);
+  }
+
+  const lastExplicit=orderedHistory.at(-1);
+  let cursor=Math.max(anchorMs,lastExplicit?strictNextSlot(lastExplicit.endMs,slotMinutes):anchorMs);
+  let previousGroup=null;
+  if(lastExplicit){
+    const g=groups.find(x=>x.members.includes(lastExplicit.video));
+    if(g)previousGroup=g.id;
+  }
+  const generated=[], minRepeatMs=minRepeatHours*3600000;
+
+  function choiceFor(group, startMs, enforceRepeat=true){
+    if(group.type==='series'){
+      const idx=groupNext.get(group.id), video=group.members[idx], last=videoLast.get(video);
+      if(enforceRepeat&&last!==undefined&&startMs-last<minRepeatMs)return null;
+      return {video,index:idx};
+    }
+    const ranked=group.members.map((video,index)=>({video,index,last:videoLast.get(video)??-Infinity}))
+      .sort((a,b)=>a.last-b.last||a.index-b.index);
+    return ranked.find(x=>!enforceRepeat||x.last===-Infinity||startMs-x.last>=minRepeatMs)||null;
+  }
+
+  while(cursor<horizonMs){
+    let candidates=groups.filter(g=>g.id!==previousGroup).map(g=>({group:g,choice:choiceFor(g,cursor,true)})).filter(x=>x.choice);
+    if(!candidates.length){
+      candidates=groups.filter(g=>g.id!==previousGroup).map(g=>({group:g,choice:choiceFor(g,cursor,false)})).filter(x=>x.choice);
+    }
+    if(!candidates.length)throw Error('Не удалось продолжить ротацию');
+
+    candidates.sort((a,b)=>(groupLast.get(a.group.id)-groupLast.get(b.group.id))||a.group.index-b.group.index);
+    const {group,choice}=candidates[0], video=catalog.videos[choice.video];
+    const startMs=cursor,endMs=startMs+video.durationSeconds*1000;
+    const stamp=minskISO(startMs).slice(0,16).replace(/[-:T]/g,'');
+    const premiere=!ever.has(choice.video);
+    generated.push({
+      id:`auto-${stamp}-${group.id}-${choice.video}`,
+      video:choice.video,
+      start:minskISO(startMs),
+      end:minskISO(endMs),
+      theme:group.label||group.value||group.id,
+      rotationGroup:group.id,
+      auto:true,
+      ...(premiere?{premiere:true}:{})
+    });
+
+    if(group.type==='series')groupNext.set(group.id,(choice.index+1)%group.members.length);
+    videoLast.set(choice.video,startMs);
+    groupLast.set(group.id,startMs);
+    ever.add(choice.video);
+    previousGroup=group.id;
+    cursor=strictNextSlot(endMs,slotMinutes);
+  }
+  return generated;
+}
+
+export function validate(catalog, schedule, now=Date.now()) {
   if (!catalog || !catalog.videos || Array.isArray(catalog.videos) || !schedule || !Array.isArray(schedule.programs)) throw Error('Некорректный формат данных');
   if (!Number.isInteger(catalog.version) || catalog.version < 1 || schedule.catalogVersion !== catalog.version) throw Error('Версии каталога и программы не совпадают');
+
   for (const [id, v] of Object.entries(catalog.videos)) {
     if (!id || !v || typeof v.title !== 'string' || !v.title.trim() || !Number.isFinite(v.durationSeconds) || v.durationSeconds <= 0) throw Error('Некорректное видео: ' + id);
     const source = v.source;
@@ -15,42 +132,59 @@ export function validate(catalog, schedule) {
     if (v.episode !== undefined && (!Number.isInteger(v.episode) || v.episode < 1)) throw Error('Некорректный номер серии: ' + id);
     if (v.sourceUrl && !safeURL(v.sourceUrl)) throw Error('Некорректная ссылка: ' + id);
   }
-  const ids = new Set();
-  const programs = schedule.programs.map(p => {
-    const startMs = Date.parse(p.start), endMs = Date.parse(p.end), video = catalog.videos[p.video];
-    if (typeof p.id !== 'string' || !p.id || ids.has(p.id) || !video || !zoned.test(p.start) || !zoned.test(p.end) || !Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs || (endMs-startMs)/1000 > video.durationSeconds + 1) throw Error('Некорректный показ: ' + p.id);
-    ids.add(p.id); return {...p, startMs, endMs};
-  }).sort((a,b) => a.startMs-b.startMs);
-  for (let i=1; i<programs.length; i++) if (programs[i].startMs < programs[i-1].endMs) throw Error('Пересечение показов: ' + programs[i-1].id + ' / ' + programs[i].id);
-  return {catalog, programs};
+
+  const ids=new Set();
+  const normalize=p=>{
+    const startMs=Date.parse(p.start),endMs=Date.parse(p.end),video=catalog.videos[p.video];
+    if(typeof p.id!=='string'||!p.id||ids.has(p.id)||!video||!zoned.test(p.start)||!zoned.test(p.end)||!Number.isFinite(startMs)||!Number.isFinite(endMs)||endMs<=startMs||(endMs-startMs)/1000>video.durationSeconds+1)throw Error('Некорректный показ: '+p.id);
+    if(p.premiere!==undefined&&typeof p.premiere!=='boolean')throw Error('Некорректная отметка премьеры: '+p.id);
+    ids.add(p.id);
+    return {...p,startMs,endMs};
+  };
+
+  const explicit=schedule.programs.map(normalize).sort((a,b)=>a.startMs-b.startMs);
+  const generated=generateRotation(catalog,schedule,explicit,now).map(normalize);
+  const programs=[...explicit,...generated].sort((a,b)=>a.startMs-b.startMs);
+  for(let i=1;i<programs.length;i++)if(programs[i].startMs<programs[i-1].endMs)throw Error('Пересечение показов: '+programs[i-1].id+' / '+programs[i].id);
+  return {catalog,programs};
 }
-export function protectStarted(previous, catalog, schedule, now=Date.now()) {
-  if (!previous) return;
-  const next = new Map(schedule.programs.map(p => [p.id,p]));
-  for (const old of previous.schedule.programs) {
-    if (Date.parse(old.start) > now) continue;
-    const p = next.get(old.id);
-    if (!p || p.start !== old.start || p.end !== old.end || p.video !== old.video) throw Error('Нельзя менять уже начавшийся показ: ' + old.id);
-    if (Date.parse(old.end) > now && JSON.stringify(previous.catalog.videos[old.video].source) !== JSON.stringify(catalog.videos[old.video]?.source)) throw Error('Нельзя менять источник текущего показа');
+
+export function protectStarted(previous, catalog, schedule, now=Date.now(), prepared=null) {
+  if(!previous)return;
+  const nextPrograms=prepared||validate(catalog,schedule,now).programs;
+  const oldPrograms=previous.resolvedPrograms||validate(previous.catalog,previous.schedule,now).programs.map(stripRuntime);
+  const next=new Map(nextPrograms.map(p=>[p.id,p]));
+  for(const oldRaw of oldPrograms){
+    const old={...oldRaw,startMs:Date.parse(oldRaw.start),endMs:Date.parse(oldRaw.end)};
+    if(old.startMs>now)continue;
+    const p=next.get(old.id);
+    if(!p||p.start!==old.start||p.end!==old.end||p.video!==old.video)throw Error('Нельзя менять уже начавшийся показ: '+old.id);
+    if(old.endMs>now&&JSON.stringify(previous.catalog.videos[old.video].source)!==JSON.stringify(catalog.videos[old.video]?.source))throw Error('Нельзя менять источник текущего показа');
   }
 }
-export function warnings(catalog, schedule) {
-  const {programs} = validate(catalog,schedule), result=[];
-  for(let i=1;i<programs.length;i++) {
-    const prev=programs[i-1], p=programs[i], a=catalog.videos[prev.video], b=catalog.videos[p.video];
+
+export function warnings(catalog, schedule, now=Date.now()) {
+  const {programs}=validate(catalog,schedule,now),result=[];
+  for(let i=1;i<programs.length;i++){
+    const prev=programs[i-1],p=programs[i],a=catalog.videos[prev.video],b=catalog.videos[p.video];
     const gap=(p.startMs-prev.endMs)/1000;
-    if(gap>0){const length=[Math.floor(gap/3600)?Math.floor(gap/3600)+' ч.':'',Math.floor(gap/60)%60?Math.floor(gap/60)%60+' мин.':'',gap%60?Math.round(gap%60)+' сек.':''].filter(Boolean).join(' ');result.push({id:p.id, message:`Пауза перед «${b.title}»: ${length}`});}
-    if(a.series && a.series===b.series && a.episode && b.episode && b.episode!==a.episode+1 && b.episode!==1) result.push({id:p.id, message:`Порядок серий «${a.series}»: ${a.episode} → ${b.episode}. Проверьте, намеренно ли это.`});
+    if(gap>0&&!p.auto){
+      const length=[Math.floor(gap/3600)?Math.floor(gap/3600)+' ч.':'',Math.floor(gap/60)%60?Math.floor(gap/60)%60+' мин.':'',gap%60?Math.round(gap%60)+' сек.':''].filter(Boolean).join(' ');
+      result.push({id:p.id,message:`Пауза перед «${b.title}»: ${length}`});
+    }
+    if(!p.auto&&a.series&&a.series===b.series&&a.episode&&b.episode&&b.episode!==a.episode+1&&b.episode!==1)result.push({id:p.id,message:`Порядок серий «${a.series}»: ${a.episode} → ${b.episode}. Проверьте, намеренно ли это.`});
   }
   return result;
 }
+
 export class BroadcastClock {
   constructor(){this.synced=false;}
   now(){return Date.now();}
   sync(){this.synced=false;}
 }
+
 export class Programme {
-  constructor(clock={now:()=>Date.now()}){this.clock=clock;this.catalog=null;this.programs=[];this.raw=null;this.loading=false;this.warning='';}
+  constructor(clock={now:()=>Date.now()}){this.clock=clock;this.catalog=null;this.programs=[];this.raw=null;this.loading=false;this.warning='';this.rotation=null;}
   active(now=this.clock.now()){
     let lo=0,hi=this.programs.length-1,last=-1;
     while(lo<=hi){const mid=(lo+hi)>>1;if(this.programs[mid].startMs<=now){last=mid;lo=mid+1;}else hi=mid-1;}
@@ -58,26 +192,30 @@ export class Programme {
   }
   next(now=this.clock.now(),count=4){return this.programs.filter(p=>p.startMs>now).slice(0,count);}
   video(p){return p?this.catalog.videos[p.video]:null;}
+  bumperSeconds(){return Number.isFinite(this.rotation?.bumperSeconds)?this.rotation.bumperSeconds:5;}
   accept(catalog,schedule,protect=true){
-    const next=validate(catalog,schedule);
-    if(protect)protectStarted(this.raw,catalog,schedule,this.clock.now());
-    this.catalog=next.catalog;this.programs=next.programs;this.raw={catalog,schedule};
+    const now=this.clock.now(),next=validate(catalog,schedule,now);
+    if(protect)protectStarted(this.raw,catalog,schedule,now,next.programs);
+    this.catalog=next.catalog;this.programs=next.programs;this.rotation=schedule.rotation||null;
+    this.raw={catalog,schedule,resolvedPrograms:next.programs.map(stripRuntime)};
   }
   async refresh(initial=false){
     if(this.loading)return !!this.raw;this.loading=true;
     try{
-      const started=performance.now(), scheduleURL=new URL('../data/schedule.json',import.meta.url), catalogURL=new URL('../data/videos.json',import.meta.url);
+      const started=performance.now(),scheduleURL=new URL('../data/schedule.json',import.meta.url),catalogURL=new URL('../data/videos.json',import.meta.url);
       const stamp=String(Date.now());scheduleURL.searchParams.set('t',stamp);catalogURL.searchParams.set('t',stamp);
       const [a,b]=await Promise.all([fetch(catalogURL,{cache:'no-store'}),fetch(scheduleURL,{cache:'no-store'})]);
       if(!a.ok||!b.ok)throw Error('Ошибка загрузки данных');
       const elapsed=performance.now()-started;
       const [catalog,schedule]=await Promise.all([a.json(),b.json()]);
       this.accept(catalog,schedule);this.clock.sync?.(b,elapsed);this.warning='';
-      try{localStorage.setItem(CACHE,JSON.stringify(this.raw));}catch{}
+      try{localStorage.setItem(CACHE,JSON.stringify({catalog,schedule}));}catch{}
       return true;
     }catch(e){
       this.warning=e.message;
-      if(initial&&!this.raw){try{const cached=JSON.parse(localStorage.getItem(CACHE));if(cached)this.accept(cached.catalog,cached.schedule,false);}catch{}}
+      if(initial&&!this.raw){
+        try{const cached=JSON.parse(localStorage.getItem(CACHE));if(cached)this.accept(cached.catalog,cached.schedule,false);}catch{}
+      }
       return !!this.raw;
     }finally{this.loading=false;}
   }
