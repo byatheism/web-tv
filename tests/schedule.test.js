@@ -92,10 +92,12 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
    const nextDoc=docs.find(d=>d.startMs===p.endMs);
    assert.ok(nextDoc,`filler ${p.id} must end exactly when a documentary starts`);
  }
- const first=docs[0],firstFiller=fillers.find(p=>p.startMs===first.endMs);
- assert.ok(firstFiller);
- assert.equal(firstFiller.video,'cam-katmai-riffles');
- assert.equal(firstFiller.end,'2026-10-07T15:00:00.000+03:00');
+ const first=docs[0],beforeFirst=fillers.find(p=>p.endMs===first.startMs),afterFirst=fillers.find(p=>p.startMs===first.endMs);
+ assert.ok(beforeFirst);
+ assert.equal(beforeFirst.video,'cam-katmai-riffles');
+ assert.ok(afterFirst);
+ assert.equal(afterFirst.video,'cam-anan-bears');
+ assert.equal(afterFirst.end,'2026-10-07T15:00:00.000+03:00');
 });
 test('Earth BBC airs in episode order',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&p.rotationGroup==='earth').slice(0,5);
