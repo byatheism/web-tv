@@ -224,14 +224,20 @@ function synchronize(){
   }catch{}
 }
 function render(){
-  const now=clock.now(),active=programme.active(now),p=active&&active.id!==ended?active:null,next=programme.next(now);
+  const now=clock.now(),active=programme.active(now),p=active&&active.id!==ended?active:null;
+  const nextAll=programme.next(now,20),next=nextAll.filter(x=>!x.filler).slice(0,4);
   $('clock').textContent=date.format(now)+' · '+clockTime.format(now);
   if(!programme.raw)return p;
 
-  programmeTitle($('now'),p,next.length?'Перерыв между передачами':'Эфир завершён');
-  $('current-time').textContent=p?`${time.format(p.startMs)} - ${time.format(p.endMs)} · осталось ${Math.ceil((p.endMs-now)/60000)} мин.`:'';
-  $('show-progress').hidden=!p;
-  if(p){
+  if(p?.filler){
+    programmeTitle($('now'),null,'Прямой эфир');
+    $('current-time').textContent=`до ${time.format(p.endMs)}`;
+  }else{
+    programmeTitle($('now'),p,next.length?'Перерыв между передачами':'Эфир завершён');
+    $('current-time').textContent=p?`${time.format(p.startMs)} - ${time.format(p.endMs)} · осталось ${Math.ceil((p.endMs-now)/60000)} мин.`:'';
+  }
+  $('show-progress').hidden=!p||p.filler;
+  if(p&&!p.filler){
     $('show-progress').value=(now-p.startMs)/(p.endMs-p.startMs)*100;
     $('show-progress').setAttribute('aria-label','Прошло передачи');
   }
@@ -253,7 +259,7 @@ function render(){
   $('tv').classList.toggle('no-program',slate);
   $('slate-clock').textContent=clockTime.format(now);
   $('slate-heading').textContent=next.length?'Следующая передача':'До следующей встречи';
-  $('slate-title').textContent=failed&&p?programme.video(p).title:next.length?(next[0].premiere?'Премьера · ':'')+programme.video(next[0]).title:'Новые показы появятся позже';
+  $('slate-title').textContent=failed&&p?(p.filler?'Прямой эфир':programme.video(p).title):next.length?(next[0].premiere?'Премьера · ':'')+programme.video(next[0]).title:'Новые показы появятся позже';
   $('slate-countdown').textContent=next.length?`${date.format(next[0].startMs)}, ${time.format(next[0].startMs)} · через ${duration((next[0].startMs-now)/1000)}`:'';
 
   const key=JSON.stringify(next.map(x=>[x.id,x.start,x.premiere,programme.video(x).title]));
