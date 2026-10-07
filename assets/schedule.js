@@ -32,6 +32,20 @@ function stripRuntime(p){
   const {startMs,endMs,...rest}=p;
   return rest;
 }
+function sameCatalogIds(catalog,fixed){
+  if(!Array.isArray(fixed?.catalogIds))return false;
+  const ids=Object.keys(catalog.videos).sort();
+  return ids.length===fixed.catalogIds.length&&ids.every((id,i)=>id===fixed.catalogIds[i]);
+}
+function selectFixedPrograms(catalog,schedule,fixed,now){
+  if(!fixed||!Array.isArray(fixed.programs))return [];
+  const valid=fixed.programs.filter(p=>p&&catalog.videos[p.video]&&typeof p.start==='string'&&typeof p.end==='string');
+  const exact=fixed.scheduleVersion===schedule.version&&fixed.catalogVersion===catalog.version&&sameCatalogIds(catalog,fixed);
+  if(exact)return valid;
+  // If the catalogue or rotation changed, keep history and the already-started show,
+  // but regenerate everything that has not started yet.
+  return valid.filter(p=>Date.parse(p.start)<=now);
+}
 
 export function generateRotation(catalog, schedule, history, now=Date.now()){
   const r=schedule.rotation;
@@ -120,7 +134,7 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
   return generated;
 }
 
-export function validate(catalog, schedule, now=Date.now()) {
+export function validate(catalog, schedule, now=Date.now(), fixed=null) {
   if (!catalog || !catalog.videos || Array.isArray(catalog.videos) || !schedule || !Array.isArray(schedule.programs)) throw Error('Некорректный формат данных');
   if (!Number.isInteger(catalog.version) || catalog.version < 1 || schedule.catalogVersion !== catalog.version) throw Error('Версии каталога и программы не совпадают');
 
@@ -143,8 +157,10 @@ export function validate(catalog, schedule, now=Date.now()) {
   };
 
   const explicit=schedule.programs.map(normalize).sort((a,b)=>a.startMs-b.startMs);
-  const generated=generateRotation(catalog,schedule,explicit,now).map(normalize);
-  const programs=[...explicit,...generated].sort((a,b)=>a.startMs-b.startMs);
+  const fixedPrograms=selectFixedPrograms(catalog,schedule,fixed,now).map(normalize).sort((a,b)=>a.startMs-b.startMs);
+  const history=[...explicit,...fixedPrograms].sort((a,b)=>a.startMs-b.startMs);
+  const generated=generateRotation(catalog,schedule,history,now).map(normalize);
+  const programs=[...history,...generated].sort((a,b)=>a.startMs-b.startMs);
   for(let i=1;i<programs.length;i++)if(programs[i].startMs<programs[i-1].endMs)throw Error('Пересечение показов: '+programs[i-1].id+' / '+programs[i].id);
   return {catalog,programs};
 }
@@ -163,8 +179,8 @@ export function protectStarted(previous, catalog, schedule, now=Date.now(), prep
   }
 }
 
-export function warnings(catalog, schedule, now=Date.now()) {
-  const {programs}=validate(catalog,schedule,now),result=[];
+export function warnings(catalog, schedule, now=Date.now(), fixed=null) {
+  const {programs}=validate(catalog,schedule,now,fixed),result=[];
   for(let i=1;i<programs.length;i++){
     const prev=programs[i-1],p=programs[i],a=catalog.videos[prev.video],b=catalog.videos[p.video];
     const gap=(p.startMs-prev.endMs)/1000;
@@ -184,7 +200,7 @@ export class BroadcastClock {
 }
 
 export class Programme {
-  constructor(clock={now:()=>Date.now()}){this.clock=clock;this.catalog=null;this.programs=[];this.raw=null;this.loading=false;this.warning='';this.rotation=null;}
+  constructor(clock={now:()=>Date.now()}){this.clock=clock;this.catalog=null;this.programs=[];this.raw=null;this.loading=false;this.warning='';this.rotation=null;this.fixed=null;}
   active(now=this.clock.now()){
     let lo=0,hi=this.programs.length-1,last=-1;
     while(lo<=hi){const mid=(lo+hi)>>1;if(this.programs[mid].startMs<=now){last=mid;lo=mid+1;}else hi=mid-1;}
@@ -192,29 +208,31 @@ export class Programme {
   }
   next(now=this.clock.now(),count=4){return this.programs.filter(p=>p.startMs>now).slice(0,count);}
   video(p){return p?this.catalog.videos[p.video]:null;}
-  bumperSeconds(){return Number.isFinite(this.rotation?.bumperSeconds)?this.rotation.bumperSeconds:5;}
-  accept(catalog,schedule,protect=true){
-    const now=this.clock.now(),next=validate(catalog,schedule,now);
+  bumperSeconds(){return Number.isFinite(this.rotation?.bumperSeconds)?this.rotation.bumperSeconds:8;}
+  accept(catalog,schedule,protect=true,fixed=null){
+    const now=this.clock.now(),next=validate(catalog,schedule,now,fixed);
     if(protect)protectStarted(this.raw,catalog,schedule,now,next.programs);
-    this.catalog=next.catalog;this.programs=next.programs;this.rotation=schedule.rotation||null;
-    this.raw={catalog,schedule,resolvedPrograms:next.programs.map(stripRuntime)};
+    this.catalog=next.catalog;this.programs=next.programs;this.rotation=schedule.rotation||null;this.fixed=fixed||null;
+    this.raw={catalog,schedule,fixed,resolvedPrograms:next.programs.map(stripRuntime)};
   }
   async refresh(initial=false){
     if(this.loading)return !!this.raw;this.loading=true;
     try{
-      const started=performance.now(),scheduleURL=new URL('../data/schedule.json',import.meta.url),catalogURL=new URL('../data/videos.json',import.meta.url);
-      const stamp=String(Date.now());scheduleURL.searchParams.set('t',stamp);catalogURL.searchParams.set('t',stamp);
-      const [a,b]=await Promise.all([fetch(catalogURL,{cache:'no-store'}),fetch(scheduleURL,{cache:'no-store'})]);
+      const started=performance.now(),scheduleURL=new URL('../data/schedule.json',import.meta.url),catalogURL=new URL('../data/videos.json',import.meta.url),fixedURL=new URL('../data/fixed-schedule.json',import.meta.url);
+      const stamp=String(Date.now());for(const url of [scheduleURL,catalogURL,fixedURL])url.searchParams.set('t',stamp);
+      const [a,b,c]=await Promise.all([fetch(catalogURL,{cache:'no-store'}),fetch(scheduleURL,{cache:'no-store'}),fetch(fixedURL,{cache:'no-store'}).catch(()=>null)]);
       if(!a.ok||!b.ok)throw Error('Ошибка загрузки данных');
       const elapsed=performance.now()-started;
       const [catalog,schedule]=await Promise.all([a.json(),b.json()]);
-      this.accept(catalog,schedule);this.clock.sync?.(b,elapsed);this.warning='';
-      try{localStorage.setItem(CACHE,JSON.stringify({catalog,schedule}));}catch{}
+      let fixed=null;
+      if(c?.ok){try{fixed=await c.json();}catch{}}
+      this.accept(catalog,schedule,true,fixed);this.clock.sync?.(b,elapsed);this.warning='';
+      try{localStorage.setItem(CACHE,JSON.stringify({catalog,schedule,fixed}));}catch{}
       return true;
     }catch(e){
       this.warning=e.message;
       if(initial&&!this.raw){
-        try{const cached=JSON.parse(localStorage.getItem(CACHE));if(cached)this.accept(cached.catalog,cached.schedule,false);}catch{}
+        try{const cached=JSON.parse(localStorage.getItem(CACHE));if(cached)this.accept(cached.catalog,cached.schedule,false,cached.fixed||null);}catch{}
       }
       return !!this.raw;
     }finally{this.loading=false;}
