@@ -174,7 +174,7 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
     previousGroup=group.id;
 
     const nextStart=slotAtOrAfter(endMs,slotMinutes);
-    if(nextStart>endMs)addFiller(endMs,nextStart);
+    if(nextStart>endMs&&nextStart<horizonMs)addFiller(endMs,nextStart);
     cursor=nextStart;
   }
   return generated;
