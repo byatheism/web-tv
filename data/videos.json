@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "videos": {
     "civilisation-01": {
       "title": "Цивилизация - 1. На грани выживания",
@@ -542,28 +542,6 @@
       },
       "author": "ShoobahDoobah",
       "category": "Документальные фильмы"
-    },
-    "cam-katmai-riffles": {
-      "title": "Катмай, Аляска - медведи у речных порогов",
-      "durationSeconds": 86400,
-      "source": {
-        "type": "youtube",
-        "videoId": "z7_GhJeFxQI"
-      },
-      "author": "Explore Bears",
-      "category": "Веб-камеры",
-      "live": true
-    },
-    "cam-anan-bears": {
-      "title": "Анан, Аляска - медведи на рыбалке",
-      "durationSeconds": 86400,
-      "source": {
-        "type": "youtube",
-        "videoId": "ypMu3yA7h3s"
-      },
-      "author": "Explore Bears",
-      "category": "Веб-камеры",
-      "live": true
     },
     "cam-utopia-top-wall": {
       "title": "Utopia Village - подводный риф, верхняя стена",

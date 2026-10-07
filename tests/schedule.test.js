@@ -11,8 +11,8 @@ const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
 test('catalogue contains documentary material only and all new videos',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
- assert.equal(Object.keys(catalog.videos).length,49);
- for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-katmai-riffles','cam-anan-bears','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific']) assert.ok(catalog.videos[id],id);
+ assert.equal(Object.keys(catalog.videos).length,47);
+ for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific']) assert.ok(catalog.videos[id],id);
 });
 
 
@@ -71,7 +71,7 @@ test('validation rejection retains the previous working programme',()=>{
 
 test('supports HTTPS video files, live webcam blocks and rejects insecure URLs',()=>{
  const c=clone(catalog);c.videos.file={title:'Direct file',durationSeconds:60,source:{type:'file',url:'https://example.org/film.mp4'}};assert.doesNotThrow(()=>validate(c,schedule,rotationNow));
- const live=clone(schedule);live.rotation.enabled=false;live.programs.push({id:'long-live-test',video:'cam-katmai-riffles',start:'2026-10-11T00:00:00+03:00',end:'2026-10-11T05:00:00+03:00'});assert.doesNotThrow(()=>validate(c,live,rotationNow));
+ const live=clone(schedule);live.rotation.enabled=false;live.programs.push({id:'long-live-test',video:'cam-utopia-top-wall',start:'2026-10-11T00:00:00+03:00',end:'2026-10-11T05:00:00+03:00'});assert.doesNotThrow(()=>validate(c,live,rotationNow));
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule,rotationNow));}
 });
 
@@ -94,9 +94,9 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
  }
  const first=docs[0],beforeFirst=fillers.find(p=>p.endMs===first.startMs),afterFirst=fillers.find(p=>p.startMs===first.endMs);
  assert.ok(beforeFirst);
- assert.equal(beforeFirst.video,'cam-katmai-riffles');
+ assert.equal(beforeFirst.video,'cam-utopia-top-wall');
  assert.ok(afterFirst);
- assert.equal(afterFirst.video,'cam-anan-bears');
+ assert.equal(afterFirst.video,'cam-tropical-reef');
  assert.equal(afterFirst.end,'2026-10-07T15:00:00.000+03:00');
 });
 test('Earth BBC airs in episode order',()=>{
@@ -125,8 +125,8 @@ test('repeat protection applies to documentaries while webcam fillers rotate fre
    if(last.has(p.video))assert.ok(p.startMs-last.get(p.video)>=8*3600000,`${p.video} repeated too soon`);
    last.set(p.video,p.startMs);
  }
- const cams=validate(catalog,schedule,rotationNow).programs.filter(p=>p.filler).slice(0,7).map(p=>p.video);
- assert.equal(new Set(cams).size,7);
+ const cams=validate(catalog,schedule,rotationNow).programs.filter(p=>p.filler).slice(0,5).map(p=>p.video);
+ assert.equal(new Set(cams).size,5);
 });
 
 test('rotation helper is deterministic for the same instant',()=>{
