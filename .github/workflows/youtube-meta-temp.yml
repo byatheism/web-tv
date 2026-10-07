@@ -12,31 +12,30 @@ jobs:
   metadata:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '22'
-      - run: npm install --no-save youtubei.js
-      - name: Read metadata
+          python-version: '3.12'
+      - run: pip install -q yt-dlp
+      - name: Read durations
         shell: bash
         run: |
-          node --input-type=module <<'NODE'
-          import { Innertube } from 'youtubei.js';
-          const yt=await Innertube.create({lang:'ru',location:'BY'});
-          for(const id of ['-l5VY9ifsfc','ZQ9uKxsArxw']){
-            let out={id};
-            try{
-              const info=await yt.getBasicInfo(id);
-              const b=info.basic_info||{};
-              out.title=b.title??null;
-              out.duration=b.duration??null;
-              out.channel=b.channel?.name??b.author??null;
-            }catch(e){out.error=String(e)}
-            if(!out.title){
-              try{
-                const r=await fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id));
-                if(r.ok){const d=await r.json();out.title=d.title??out.title;out.channel=d.author_name??out.channel;}
-              }catch{}
-            }
-            console.log('META '+JSON.stringify(out));
-          }
-          NODE
+          python - <<'PY'
+          import json, subprocess
+          ids=['-l5VY9ifsfc','ZQ9uKxsArxw']
+          for vid in ids:
+              out={'id':vid}
+              for client in ('web_embedded','tv_embedded','android_vr','web','android'):
+                  p=subprocess.run([
+                      'yt-dlp','--dump-single-json','--skip-download','--no-playlist',
+                      '--extractor-args',f'youtube:player_client={client}',
+                      f'https://www.youtube.com/watch?v={vid}'
+                  ],capture_output=True,text=True)
+                  if p.returncode==0:
+                      try:
+                          d=json.loads(p.stdout)
+                          out.update(client=client,title=d.get('title'),duration=d.get('duration'))
+                          break
+                      except Exception:
+                          pass
+              print('META '+json.dumps(out,ensure_ascii=False))
+          PY
