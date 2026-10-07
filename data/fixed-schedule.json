@@ -1,11 +1,12 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-07T12:34:06.985Z",
-  "freezeUntil": "2026-10-10T12:34:06.985Z",
-  "catalogVersion": 6,
+  "generatedAt": "2026-10-07T17:43:41.108Z",
+  "freezeUntil": "2026-10-10T17:43:41.108Z",
+  "catalogVersion": 7,
   "scheduleVersion": 12,
   "sourceEdition": "fixed-three-day-programme-20261007",
   "catalogIds": [
+    "ashes-to-ashes-kcd2",
     "bbc-911",
     "bbc-birds-of-paradise",
     "bbc-black-death",
@@ -39,6 +40,7 @@
     "earth-bbc-03",
     "earth-bbc-04",
     "earth-bbc-05",
+    "loneliness-in-space",
     "natgeo-earth-biography",
     "natgeo-edge-universe",
     "voyages-discovery-01",
@@ -683,39 +685,95 @@
       "auto": true
     },
     {
-      "id": "auto-202610101235-documentaries-bbc-black-death",
-      "video": "bbc-black-death",
+      "id": "auto-202610101235-documentaries-loneliness-in-space",
+      "video": "loneliness-in-space",
       "start": "2026-10-10T12:35:00.000+03:00",
-      "end": "2026-10-10T13:28:34.000+03:00",
+      "end": "2026-10-10T12:55:44.000+03:00",
       "theme": "Документальный фильм",
       "rotationGroup": "documentaries",
-      "auto": true
+      "auto": true,
+      "premiere": true
     },
     {
-      "id": "auto-202610101330-earth-earth-bbc-03",
+      "id": "auto-202610101300-earth-earth-bbc-03",
       "video": "earth-bbc-03",
-      "start": "2026-10-10T13:30:00.000+03:00",
-      "end": "2026-10-10T14:21:08.000+03:00",
+      "start": "2026-10-10T13:00:00.000+03:00",
+      "end": "2026-10-10T13:51:08.000+03:00",
       "theme": "Земля BBC",
       "rotationGroup": "earth",
       "auto": true
     },
     {
-      "id": "auto-202610101425-civilisation-civilisation-12",
+      "id": "auto-202610101355-civilisation-civilisation-12",
       "video": "civilisation-12",
-      "start": "2026-10-10T14:25:00.000+03:00",
-      "end": "2026-10-10T15:14:31.000+03:00",
+      "start": "2026-10-10T13:55:00.000+03:00",
+      "end": "2026-10-10T14:44:31.000+03:00",
       "theme": "Цивилизация",
       "rotationGroup": "civilisation",
       "auto": true
     },
     {
-      "id": "auto-202610101515-voyages-voyages-discovery-01",
+      "id": "auto-202610101445-voyages-voyages-discovery-01",
       "video": "voyages-discovery-01",
-      "start": "2026-10-10T15:15:00.000+03:00",
-      "end": "2026-10-10T16:13:57.000+03:00",
+      "start": "2026-10-10T14:45:00.000+03:00",
+      "end": "2026-10-10T15:43:57.000+03:00",
       "theme": "Великие географические открытия",
       "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "auto-202610101545-documentaries-ashes-to-ashes-kcd2",
+      "video": "ashes-to-ashes-kcd2",
+      "start": "2026-10-10T15:45:00.000+03:00",
+      "end": "2026-10-10T16:05:57.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true,
+      "premiere": true
+    },
+    {
+      "id": "auto-202610101610-earth-earth-bbc-04",
+      "video": "earth-bbc-04",
+      "start": "2026-10-10T16:10:00.000+03:00",
+      "end": "2026-10-10T17:02:11.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "auto-202610101705-civilisation-civilisation-13",
+      "video": "civilisation-13",
+      "start": "2026-10-10T17:05:00.000+03:00",
+      "end": "2026-10-10T17:56:05.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "auto-202610101800-voyages-voyages-discovery-02",
+      "video": "voyages-discovery-02",
+      "start": "2026-10-10T18:00:00.000+03:00",
+      "end": "2026-10-10T18:59:00.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "auto-202610101900-documentaries-bbc-black-death",
+      "video": "bbc-black-death",
+      "start": "2026-10-10T19:00:00.000+03:00",
+      "end": "2026-10-10T19:53:34.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "auto-202610101955-earth-earth-bbc-05",
+      "video": "earth-bbc-05",
+      "start": "2026-10-10T19:55:00.000+03:00",
+      "end": "2026-10-10T20:47:15.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
       "auto": true
     }
   ]
