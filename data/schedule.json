@@ -183,17 +183,9 @@
     "groups": [
       {
         "id": "music",
-        "type": "ids",
+        "type": "category",
         "label": "Концерт",
-        "videos": [
-          "nofx-1998",
-          "chuck-1965",
-          "offspring-2024",
-          "amy-2008",
-          "carl-1985",
-          "motorhead-2006",
-          "beatles-1969"
-        ]
+        "value": "Музыка"
       },
       {
         "id": "civilisation",
