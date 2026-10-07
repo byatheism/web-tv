@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save youtubei.js
-      - name: Read metadata
+      - name: Read compact metadata
         shell: bash
         run: |
           node --input-type=module <<'NODE'
@@ -24,19 +24,21 @@ jobs:
           const yt = await Innertube.create({ lang: 'ru', location: 'BY' });
           const ids = ["VhcmoJ12DPY","XMSE-zjwD0U","oI-_W1ALo2E","nZr1oqL0oZk","HHfbkvi7iL4","u5D6EthTzfU","WT6NDRRTe9c","nOMerAkjKMg","s7XSvMjYdf4","4lMr52pFzBU","oUNCVamhVd0","3NyJcejlW3o","qiSefk2kf0Y","kJ-aTW_nDwg","BDYTcWkFcu0","kS2t0kvIMmw","Lert9K_4VjU","aosi2biz3pY","N-5imv3PHDw","t9JqD4F3X4A","NNH6HjmHZzw","ej9yIH_-TEk"];
           for (const id of ids) {
+            let title=null,duration=null,channel=null,error=null;
             try {
-              const info = await yt.getBasicInfo(id);
-              const b = info.basic_info || {};
-              console.log('META_JSON ' + JSON.stringify({
-                id,
-                title: b.title ?? null,
-                duration: b.duration ?? null,
-                short_description: b.short_description ?? null,
-                channel: b.channel?.name ?? b.author ?? null,
-                is_live: b.is_live ?? false
-              }));
-            } catch (e) {
-              console.log('META_ERROR ' + JSON.stringify({id,error:String(e)}));
+              const info=await yt.getBasicInfo(id);
+              const b=info.basic_info||{};
+              title=b.title??null;
+              duration=b.duration??null;
+              channel=b.channel?.name??b.author??null;
+            } catch(e){error=String(e)}
+            if(!title){
+              try{
+                const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id);
+                const r=await fetch(url);
+                if(r.ok){const d=await r.json();title=d.title??title;channel=d.author_name??channel;}
+              }catch(e){error=(error?error+' | ':'')+String(e)}
             }
+            console.log('META '+JSON.stringify({id,title,duration,channel,error}));
           }
           NODE
