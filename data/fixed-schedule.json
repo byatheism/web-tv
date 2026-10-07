@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-07T18:52:47.780Z",
-  "freezeUntil": "2026-10-10T18:52:47.780Z",
+  "generatedAt": "2026-10-07T21:23:10.328Z",
+  "freezeUntil": "2026-10-10T21:23:10.328Z",
   "catalogVersion": 9,
   "scheduleVersion": 13,
   "sourceEdition": "hourly-documentaries-with-webcams-20261007",
@@ -1317,6 +1317,53 @@
       "theme": "Прямой эфир - веб-камера",
       "rotationGroup": "webcams",
       "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610102200-earth-earth-bbc-03",
+      "video": "earth-bbc-03",
+      "start": "2026-10-10T22:00:00.000+03:00",
+      "end": "2026-10-10T22:51:08.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202610102251-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-10-10T22:51:08.000+03:00",
+      "end": "2026-10-10T23:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610102300-civilisation-civilisation-12",
+      "video": "civilisation-12",
+      "start": "2026-10-10T23:00:00.000+03:00",
+      "end": "2026-10-10T23:49:31.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "filler-202610102349-cam-utopia-back-channel",
+      "video": "cam-utopia-back-channel",
+      "start": "2026-10-10T23:49:31.000+03:00",
+      "end": "2026-10-11T00:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610110000-voyages-voyages-discovery-01",
+      "video": "voyages-discovery-01",
+      "start": "2026-10-11T00:00:00.000+03:00",
+      "end": "2026-10-11T00:58:57.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
       "auto": true
     }
   ]
