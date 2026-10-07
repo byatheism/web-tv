@@ -1,10 +1,10 @@
-import {Programme,BroadcastClock} from './schedule.js?v=0.3.0';
-import {$,time,date,el,duration} from './common.js?v=0.3.0';
-import {createMedia,loadYouTube} from './media.js?v=0.3.0';
+import {Programme,BroadcastClock} from './schedule.js?v=0.4.0';
+import {$,time,date,el,duration} from './common.js?v=0.4.0';
+import {createMedia,loadYouTube} from './media.js?v=0.4.0';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
-let powered=false,media=null,ready=false,starting=false,generation=0,loaded=null,ended=null,retries=0,retryAt=0,failed=false,lastProgress=0,lastPosition=-1,lastSync=0,listKey='',transitionTimer=0,transitionAt=0;
+let powered=false,media=null,ready=false,starting=false,generation=0,loaded=null,ended=null,retries=0,retryAt=0,failed=false,lastProgress=0,lastPosition=-1,lastSync=0,listKey='',transitionTimer=0,transitionAt=0,fadeTimer=0,fadeAt=0,breakRevealTimer=0;
 let volume=70,muted=false,lastAudible=70;
 
 try{
@@ -32,6 +32,19 @@ function setStartCover(on){
   const cover=$('startup-cover');
   if(cover)cover.hidden=!on;
 }
+function setBroadcastFade(on,instant=false){
+  const fade=$('broadcast-fade');
+  if(!fade)return;
+  if(instant)fade.classList.add('no-transition');
+  fade.classList.toggle('active',on);
+  if(instant)requestAnimationFrame(()=>requestAnimationFrame(()=>fade.classList.remove('no-transition')));
+}
+function revealBreak(){
+  clearTimeout(breakRevealTimer);
+  breakRevealTimer=setTimeout(()=>{
+    if(powered&&!programme.active())setBroadcastFade(false);
+  },260);
+}
 function programmeTitle(host,show,fallback=''){
   host.replaceChildren();
   if(!show){host.textContent=fallback;return;}
@@ -42,7 +55,11 @@ function setPower(on){
   powered=on;
   $('tv').classList.toggle('on',on);
   $('standby').hidden=on;
-  if(!on)setStartCover(false);
+  if(!on){
+    setStartCover(false);
+    clearTimeout(breakRevealTimer);
+    setBroadcastFade(false,true);
+  }
   const label=on?'Выключить телевизор':'Включить телевизор';
   $('power').title=label;
   $('power').setAttribute('aria-label',label);
@@ -88,6 +105,8 @@ async function start(p){
   failed=false;
   lastProgress=clock.now();
   lastPosition=-1;
+  clearTimeout(breakRevealTimer);
+  setBroadcastFade(true,true);
   setStartCover(true);
   const token=++generation;
   const valid=()=>token===generation&&powered&&programme.active()?.id===p.id;
@@ -107,7 +126,11 @@ async function start(p){
         retries=0;
         lastProgress=clock.now();
         $('status').textContent='';
-        setTimeout(()=>{if(valid())setStartCover(false);},900);
+        setTimeout(()=>{
+          if(!valid())return;
+          setStartCover(false);
+          requestAnimationFrame(()=>setBroadcastFade(false));
+        },220);
       },
       paused(){
         if(valid()&&ready&&!failed&&!document.hidden)media?.play();
@@ -120,7 +143,11 @@ async function start(p){
           if(!document.hidden)setTimeout(()=>start(p),200);
         }else{
           ended=p.id;
-          clearMedia();
+          setBroadcastFade(true);
+          setTimeout(()=>{
+            clearMedia();
+            revealBreak();
+          },420);
         }
       },
       error(){if(valid()&&!document.hidden)fail();},
@@ -161,8 +188,11 @@ function render(){
   $('tv').classList.toggle('pre-roll',!!bumper);
   $('ident').hidden=!bumper;
   if(bumper){
-    $('ident-title').textContent=programme.video(nextShow).title;
+    const v=programme.video(nextShow);
+    $('ident-title').textContent=v.title;
     $('ident-premiere').hidden=!nextShow.premiere;
+    $('ident-time').textContent=time.format(nextShow.startMs);
+    $('ident-meta').textContent=nextShow.theme||v.series||v.category||'Документальный фильм';
   }
 
   const slate=!p||failed;
@@ -192,6 +222,27 @@ function clearTransitionTimer(){
   transitionTimer=0;
   transitionAt=0;
 }
+function clearFadeTimer(){
+  if(fadeTimer)clearTimeout(fadeTimer);
+  fadeTimer=0;
+  fadeAt=0;
+}
+function armEndFade(p){
+  if(!powered||!p){clearFadeTimer();return;}
+  const target=p.endMs-750,now=clock.now();
+  if(target<=now){
+    setBroadcastFade(true);
+    return;
+  }
+  if(fadeTimer&&fadeAt===target)return;
+  clearFadeTimer();
+  fadeAt=target;
+  fadeTimer=setTimeout(()=>{
+    fadeTimer=0;
+    fadeAt=0;
+    if(powered&&programme.active()?.id===p.id)setBroadcastFade(true);
+  },Math.max(0,target-now));
+}
 function armTransitionTimer(){
   if(!powered||!programme.raw){clearTransitionTimer();return;}
   const now=clock.now(),next=programme.next(now,1)[0];
@@ -214,11 +265,17 @@ function tick(){
   const p=render();
   if(!powered){
     clearTransitionTimer();
+    clearFadeTimer();
     return;
   }
   armTransitionTimer();
+  armEndFade(p);
   if(!p){
-    if(media||starting)clearMedia();
+    if(media||starting){
+      setBroadcastFade(true,true);
+      clearMedia();
+      revealBreak();
+    }
     return;
   }
   if(loaded!==p.id)resetShow(p.id);
@@ -255,6 +312,8 @@ function tick(){
 $('power').onclick=()=>{
   if(powered){
     clearTransitionTimer();
+    clearFadeTimer();
+    clearTimeout(breakRevealTimer);
     clearMedia();
     setPower(false);
     loaded=null;
