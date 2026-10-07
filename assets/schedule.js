@@ -136,7 +136,7 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
 
 export function validate(catalog, schedule, now=Date.now(), fixed=null) {
   if (!catalog || !catalog.videos || Array.isArray(catalog.videos) || !schedule || !Array.isArray(schedule.programs)) throw Error('Некорректный формат данных');
-  if (!Number.isInteger(catalog.version) || catalog.version < 1 || schedule.catalogVersion !== catalog.version) throw Error('Версии каталога и программы не совпадают');
+  if (!Number.isInteger(catalog.version) || catalog.version < 1 || !Number.isInteger(schedule.catalogVersion) || schedule.catalogVersion < 1 || schedule.catalogVersion > catalog.version) throw Error('Версия программы новее каталога');
 
   for (const [id, v] of Object.entries(catalog.videos)) {
     if (!id || !v || typeof v.title !== 'string' || !v.title.trim() || !Number.isFinite(v.durationSeconds) || v.durationSeconds <= 0) throw Error('Некорректное видео: ' + id);
