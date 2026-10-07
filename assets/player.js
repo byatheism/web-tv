@@ -1,6 +1,6 @@
-import {Programme,BroadcastClock} from './schedule.js?v=0.2.7';
-import {$,time,date,el,duration} from './common.js?v=0.2.7';
-import {createMedia,loadYouTube} from './media.js?v=0.2.7';
+import {Programme,BroadcastClock} from './schedule.js?v=0.3.0';
+import {$,time,date,el,duration} from './common.js?v=0.3.0';
+import {createMedia,loadYouTube} from './media.js?v=0.3.0';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
@@ -31,6 +31,12 @@ function sound(){
 function setStartCover(on){
   const cover=$('startup-cover');
   if(cover)cover.hidden=!on;
+}
+function programmeTitle(host,show,fallback=''){
+  host.replaceChildren();
+  if(!show){host.textContent=fallback;return;}
+  if(show.premiere)host.append(el('span','ПРЕМЬЕРА','premiere-badge'),document.createTextNode(' '));
+  host.append(document.createTextNode(programme.video(show).title));
 }
 function setPower(on){
   powered=on;
@@ -140,25 +146,40 @@ function render(){
   const now=clock.now(),active=programme.active(now),p=active&&active.id!==ended?active:null,next=programme.next(now);
   $('clock').textContent=date.format(now)+' · '+clockTime.format(now);
   if(!programme.raw)return p;
-  $('now').textContent=p?programme.video(p).title:(next.length?'Перерыв между передачами':'Эфир завершён');
+
+  programmeTitle($('now'),p,next.length?'Перерыв между передачами':'Эфир завершён');
   $('current-time').textContent=p?`${time.format(p.startMs)} - ${time.format(p.endMs)} · осталось ${Math.ceil((p.endMs-now)/60000)} мин.`:'';
   $('show-progress').hidden=!p;
   if(p){
     $('show-progress').value=(now-p.startMs)/(p.endMs-p.startMs)*100;
     $('show-progress').setAttribute('aria-label','Прошло передачи');
   }
+
+  const nextShow=next[0]||null;
+  const toNext=nextShow?nextShow.startMs-now:Infinity;
+  const bumper=powered&&!p&&!failed&&nextShow&&toNext>0&&toNext<=programme.bumperSeconds()*1000;
+  $('tv').classList.toggle('pre-roll',!!bumper);
+  $('ident').hidden=!bumper;
+  if(bumper){
+    $('ident-title').textContent=programme.video(nextShow).title;
+    $('ident-premiere').hidden=!nextShow.premiere;
+  }
+
   const slate=!p||failed;
   $('tv').classList.toggle('no-program',slate);
   $('slate-clock').textContent=clockTime.format(now);
-  $('slate-heading').textContent=next.length?'Продолжение эфира':'До следующей встречи';
-  $('slate-title').textContent=failed&&p?programme.video(p).title:next.length?programme.video(next[0]).title:'Новые показы появятся позже';
+  $('slate-heading').textContent=next.length?'Следующая передача':'До следующей встречи';
+  $('slate-title').textContent=failed&&p?programme.video(p).title:next.length?(next[0].premiere?'Премьера · ':'')+programme.video(next[0]).title:'Новые показы появятся позже';
   $('slate-countdown').textContent=next.length?`${date.format(next[0].startMs)}, ${time.format(next[0].startMs)} · через ${duration((next[0].startMs-now)/1000)}`:'';
-  const key=JSON.stringify(next.map(x=>[x.id,x.start,programme.video(x).title]));
+
+  const key=JSON.stringify(next.map(x=>[x.id,x.start,x.premiere,programme.video(x).title]));
   if(key!==listKey){
     listKey=key;
     $('schedule').replaceChildren();
     for(const x of next){
-      const li=el('li'),t=el('time',date.format(x.startMs)+' в '+time.format(x.startMs)),d=el('div',programme.video(x).title);
+      const li=el('li'),t=el('time',date.format(x.startMs)+' в '+time.format(x.startMs)),d=el('div');
+      if(x.premiere)d.append(el('span','ПРЕМЬЕРА','premiere-badge'),document.createTextNode(' '));
+      d.append(document.createTextNode(programme.video(x).title));
       li.append(t,d);
       $('schedule').append(li);
     }
