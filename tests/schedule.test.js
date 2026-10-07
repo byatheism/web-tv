@@ -5,6 +5,7 @@ import {validate,Programme,protectStarted,warnings,clone,BroadcastClock,generate
 
 const catalog=JSON.parse(fs.readFileSync(new URL('../data/videos.json',import.meta.url)));
 const schedule=JSON.parse(fs.readFileSync(new URL('../data/schedule.json',import.meta.url)));
+const fixed=JSON.parse(fs.readFileSync(new URL('../data/fixed-schedule.json',import.meta.url)));
 const instant=Date.parse('2026-10-06T21:25:00+03:00');
 const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
@@ -12,6 +13,31 @@ test('catalogue contains documentary material only and all new videos',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
  assert.equal(Object.keys(catalog.videos).length,40);
  for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05']) assert.ok(catalog.videos[id],id);
+});
+
+
+test('fixed programme covers several days and is compatible with the catalogue',()=>{
+ assert.equal(fixed.catalogVersion,catalog.version);
+ assert.equal(fixed.scheduleVersion,schedule.version);
+ assert.deepEqual(fixed.catalogIds,Object.keys(catalog.videos).sort());
+ assert.ok(Date.parse(fixed.freezeUntil)-Date.parse(fixed.generatedAt)>=71*3600000);
+ assert.ok(fixed.programs.length>40);
+ const at=Date.parse(fixed.generatedAt);
+ const future=fixed.programs.find(p=>Date.parse(p.start)>at);
+ assert.ok(future);
+ const resolved=validate(catalog,schedule,at,fixed).programs.find(p=>p.id===future.id);
+ assert.equal(resolved?.start,future.start);
+});
+
+test('catalogue additions invalidate only unstarted fixed future',()=>{
+ const at=Date.parse(fixed.generatedAt);
+ const current=fixed.programs.find(p=>Date.parse(p.start)<=at&&Date.parse(p.end)>at);
+ const future=fixed.programs.find(p=>Date.parse(p.start)>at+3600000);
+ const c=clone(catalog);
+ c.videos['test-new-documentary']={title:'Новый документальный фильм',durationSeconds:3000,source:{type:'youtube',videoId:'aaaaaaaaaaa'},category:'Документальные фильмы'};
+ const resolved=validate(c,schedule,at,fixed).programs;
+ if(current)assert.ok(resolved.some(p=>p.id===current.id&&p.start===current.start));
+ if(future)assert.ok(resolved.some(p=>p.startMs>Date.parse(current?.end||new Date(at).toISOString())));
 });
 
 test('published broadcasts have valid boundaries, including gaps and generated future',()=>{
