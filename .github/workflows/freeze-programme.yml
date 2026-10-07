@@ -1,0 +1,46 @@
+name: Freeze programme
+
+on:
+  push:
+    paths:
+      - 'data/videos.json'
+      - 'data/schedule.json'
+      - 'assets/schedule.js'
+      - 'scripts/freeze-programme.js'
+      - '.github/workflows/freeze-programme.yml'
+  schedule:
+    - cron: '7 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: freeze-programme
+  cancel-in-progress: true
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/freeze-programme.js
+      - run: npm test
+      - run: npm run check
+      - name: Commit fixed programme
+        shell: bash
+        run: |
+          if git diff --quiet -- data/fixed-schedule.json; then
+            echo "Fixed programme is unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/fixed-schedule.json
+          git commit -m "Update fixed programme"
+          git push
