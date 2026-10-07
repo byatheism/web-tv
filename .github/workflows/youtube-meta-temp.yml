@@ -12,20 +12,33 @@ jobs:
   metadata:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect duration hints
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save puppeteer-core
+      - name: Read duration from YouTube player
         shell: bash
         run: |
           node --input-type=module <<'NODE'
-          for(const id of ['-l5VY9ifsfc','ZQ9uKxsArxw']){
-            const r=await fetch('https://www.youtube.com/watch?v='+id,{headers:{'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/152 Safari/537.36','accept-language':'ru,en;q=0.8'}});
-            const html=await r.text();
-            const out={id};
-            for(const key of ['lengthText','duration','lengthSeconds','approxDurationMs','videoDetails']){
-              const i=html.indexOf(key);
-              out[key]=i<0?null:html.slice(Math.max(0,i-180),Math.min(html.length,i+420)).replace(/\s+/g,' ');
-            }
-            const iso=[...html.matchAll(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/g)].slice(0,20).map(m=>m[0]);
-            out.iso=[...new Set(iso)];
-            console.log('META '+JSON.stringify(out));
+          import puppeteer from 'puppeteer-core';
+          import {execSync} from 'node:child_process';
+          let chrome='';
+          for(const cmd of ['google-chrome','google-chrome-stable','chromium','chromium-browser']){
+            try{chrome=execSync('which '+cmd,{encoding:'utf8'}).trim();if(chrome)break;}catch{}
           }
+          if(!chrome)throw new Error('Chrome not found');
+          const browser=await puppeteer.launch({headless:true,executablePath:chrome,args:['--no-sandbox','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});
+          for(const id of ['-l5VY9ifsfc','ZQ9uKxsArxw']){
+            const page=await browser.newPage();
+            await page.setViewport({width:1280,height:720});
+            await page.setContent(`<!doctype html><html><body><div id="p"></div><script>window.done=null;window.onYouTubeIframeAPIReady=()=>{const p=new YT.Player('p',{videoId:'${id}',playerVars:{controls:0,playsinline:1},events:{onReady:()=>{setTimeout(()=>{window.done={duration:p.getDuration(),title:p.getVideoData()?.title||null,state:p.getPlayerState()}},2500)},onError:e=>{window.done={error:e.data}}}})};</script><script src="https://www.youtube.com/iframe_api"></script></body></html>`,{waitUntil:'domcontentloaded'});
+            try{
+              await page.waitForFunction(()=>window.done!==null,{timeout:30000});
+              console.log('META '+JSON.stringify({id,...await page.evaluate(()=>window.done)}));
+            }catch(e){
+              console.log('META '+JSON.stringify({id,error:String(e)}));
+            }
+            await page.close();
+          }
+          await browser.close();
           NODE
