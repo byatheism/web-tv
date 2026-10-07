@@ -217,11 +217,9 @@ function synchronize(){
   if(document.hidden||!powered||!ready||!media||failed)return;
   const p=programme.active(),now=clock.now();
   if(!p||p.id!==loaded||now-lastSync<30000)return;
+  // Do not chase the wall clock while the same programme is already playing.
+  // The initial offset is applied only when a programme actually starts/resumes.
   lastSync=now;
-  try{
-    const position=media.time(),expected=(now-p.startMs)/1000;
-    if(media.state()===1&&Number.isFinite(position)&&Math.abs(position-expected)>8)media.seek(Math.max(0,expected));
-  }catch{}
 }
 function render(){
   const now=clock.now(),active=programme.active(now),p=active&&active.id!==ended?active:null;
@@ -451,10 +449,9 @@ document.addEventListener('visibilitychange',()=>{
   lastSync=now;
   const p=programme.active();
   if(powered&&p&&loaded===p.id&&ready&&media){
-    const expected=Math.max(0,(now-p.startMs)/1000);
     try{
       const position=media.time();
-      if(Number.isFinite(position)&&Math.abs(position-expected)>3)media.seek(expected);
+      if(Number.isFinite(position))lastPosition=position;
       if(media.state()!==1)media.play();
     }catch{}
   }
