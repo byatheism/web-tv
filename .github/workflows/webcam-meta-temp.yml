@@ -1,0 +1,45 @@
+name: Temporary webcam metadata
+
+on:
+  push:
+    paths:
+      - '.github/workflows/webcam-meta-temp.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save youtubei.js
+      - name: Read webcam metadata
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { Innertube } from 'youtubei.js';
+          const yt=await Innertube.create({lang:'ru',location:'BY'});
+          const ids=['z7_GhJeFxQI','ypMu3yA7h3s','1zcIUk66HX4','DHUnz4dyb54','jzx_n25g3kA','nmjlQlYygB4','h0F818upkgI'];
+          for(const id of ids){
+            let out={id};
+            try{
+              const info=await yt.getBasicInfo(id);
+              const b=info.basic_info||{};
+              out.title=b.title??null;
+              out.channel=b.channel?.name??b.author??null;
+              out.is_live=b.is_live??null;
+              out.is_live_content=b.is_live_content??null;
+              out.duration=b.duration??null;
+            }catch(e){out.error=String(e)}
+            if(!out.title){
+              try{
+                const r=await fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id));
+                if(r.ok){const d=await r.json();out.title=d.title??null;out.channel=d.author_name??null;}
+              }catch{}
+            }
+            console.log('META '+JSON.stringify(out));
+          }
+          NODE
