@@ -13,6 +13,10 @@ function strictNextSlot(ms, minutes){
   const step=minutes*60000;
   return Math.floor(ms/step)*step+step;
 }
+function slotAtOrAfter(ms, minutes){
+  const step=minutes*60000;
+  return Math.ceil(ms/step)*step;
+}
 function videoGroupMembers(catalog, group){
   let ids=[];
   if(group.type==='series'){
@@ -51,7 +55,7 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
   const r=schedule.rotation;
   if(!r?.enabled)return [];
   if(!zoned.test(r.anchor)||!Number.isFinite(Date.parse(r.anchor)))throw Error('Некорректное начало авторотации');
-  const slotMinutes=Number.isInteger(r.slotMinutes)&&r.slotMinutes>=1?r.slotMinutes:5;
+  const slotMinutes=Number.isInteger(r.slotMinutes)&&r.slotMinutes>=1?r.slotMinutes:60;
   const horizonHours=Number.isFinite(r.horizonHours)&&r.horizonHours>=24?r.horizonHours:168;
   const minRepeatHours=Number.isFinite(r.minRepeatHours)&&r.minRepeatHours>=0?r.minRepeatHours:12;
   const anchorMs=Date.parse(r.anchor), horizonMs=Math.max(anchorMs,now)+horizonHours*3600000;
@@ -60,6 +64,13 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
     return {...g,index,members:videoGroupMembers(catalog,g)};
   });
   if(groups.length<2)throw Error('Для ротации нужны минимум две группы');
+
+  let filler=null;
+  if(r.filler){
+    const g=r.filler;
+    if(!g||!['series','category','ids'].includes(g.type))throw Error('Некорректная группа заполнения эфира');
+    filler={...g,members:videoGroupMembers(catalog,g)};
+  }
 
   const videoLast=new Map(), groupLast=new Map(groups.map(g=>[g.id,-Infinity])), ever=new Set();
   const groupNext=new Map();
@@ -77,18 +88,50 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
     groupNext.set(g.id,(lastMember+1+g.members.length)%g.members.length);
   }
   for(const p of orderedHistory){
-    videoLast.set(p.video,p.startMs);
-    ever.add(p.video);
+    if(!catalog.videos[p.video]?.live){
+      videoLast.set(p.video,p.startMs);
+      ever.add(p.video);
+    }
+  }
+
+  let fillerIndex=0;
+  if(filler){
+    for(const p of orderedHistory){
+      const idx=filler.members.indexOf(p.video);
+      if(idx>=0)fillerIndex=(idx+1)%filler.members.length;
+    }
   }
 
   const lastExplicit=orderedHistory.at(-1);
-  let cursor=Math.max(anchorMs,lastExplicit?strictNextSlot(lastExplicit.endMs,slotMinutes):anchorMs);
+  const lastEnd=lastExplicit?.endMs??anchorMs;
+  let cursor=slotAtOrAfter(Math.max(anchorMs,lastEnd,now),slotMinutes);
   let previousGroup=null;
-  if(lastExplicit){
-    const g=groups.find(x=>x.members.includes(lastExplicit.video));
+  for(let i=orderedHistory.length-1;i>=0&&!previousGroup;i--){
+    const p=orderedHistory[i];
+    const g=groups.find(x=>x.members.includes(p.video));
     if(g)previousGroup=g.id;
   }
   const generated=[], minRepeatMs=minRepeatHours*3600000;
+
+  function addFiller(startMs,endMs){
+    if(!filler||endMs-startMs<1000)return;
+    const video=filler.members[fillerIndex%filler.members.length];
+    fillerIndex=(fillerIndex+1)%filler.members.length;
+    const stamp=minskISO(startMs).slice(0,16).replace(/[-:T]/g,'');
+    generated.push({
+      id:`filler-${stamp}-${video}`,
+      video,
+      start:minskISO(startMs),
+      end:minskISO(endMs),
+      theme:filler.label||filler.value||'Веб-камера',
+      rotationGroup:filler.id||'filler',
+      filler:true,
+      auto:true
+    });
+  }
+
+  const initialFillStart=Math.max(lastEnd,now);
+  if(cursor>initialFillStart)addFiller(initialFillStart,cursor);
 
   function choiceFor(group, startMs, enforceRepeat=true){
     if(group.type==='series'){
@@ -129,7 +172,10 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
     groupLast.set(group.id,startMs);
     ever.add(choice.video);
     previousGroup=group.id;
-    cursor=strictNextSlot(endMs,slotMinutes);
+
+    const nextStart=slotAtOrAfter(endMs,slotMinutes);
+    if(nextStart>endMs)addFiller(endMs,nextStart);
+    cursor=nextStart;
   }
   return generated;
 }
@@ -140,6 +186,7 @@ export function validate(catalog, schedule, now=Date.now(), fixed=null) {
 
   for (const [id, v] of Object.entries(catalog.videos)) {
     if (!id || !v || typeof v.title !== 'string' || !v.title.trim() || !Number.isFinite(v.durationSeconds) || v.durationSeconds <= 0) throw Error('Некорректное видео: ' + id);
+    if (v.live !== undefined && typeof v.live !== 'boolean') throw Error('Некорректный признак live: ' + id);
     const source = v.source;
     if (!(source?.type === 'youtube' && /^[A-Za-z0-9_-]{11}$/.test(source.videoId)) && !(source?.type === 'file' && safeURL(source.url))) throw Error('Некорректный источник: ' + id);
     for (const key of ['series','author','country','summary','category','year']) if (v[key] !== undefined && typeof v[key] !== 'string') throw Error('Некорректное поле ' + key + ': ' + id);
@@ -150,7 +197,7 @@ export function validate(catalog, schedule, now=Date.now(), fixed=null) {
   const ids=new Set();
   const normalize=p=>{
     const startMs=Date.parse(p.start),endMs=Date.parse(p.end),video=catalog.videos[p.video];
-    if(typeof p.id!=='string'||!p.id||ids.has(p.id)||!video||!zoned.test(p.start)||!zoned.test(p.end)||!Number.isFinite(startMs)||!Number.isFinite(endMs)||endMs<=startMs||(endMs-startMs)/1000>video.durationSeconds+1)throw Error('Некорректный показ: '+p.id);
+    if(typeof p.id!=='string'||!p.id||ids.has(p.id)||!video||!zoned.test(p.start)||!zoned.test(p.end)||!Number.isFinite(startMs)||!Number.isFinite(endMs)||endMs<=startMs||(!video.live&&(endMs-startMs)/1000>video.durationSeconds+1))throw Error('Некорректный показ: '+p.id);
     if(p.premiere!==undefined&&typeof p.premiere!=='boolean')throw Error('Некорректная отметка премьеры: '+p.id);
     ids.add(p.id);
     return {...p,startMs,endMs};
