@@ -6,11 +6,12 @@ import {validate,Programme,protectStarted,warnings,clone,BroadcastClock,generate
 const catalog=JSON.parse(fs.readFileSync(new URL('../data/videos.json',import.meta.url)));
 const schedule=JSON.parse(fs.readFileSync(new URL('../data/schedule.json',import.meta.url)));
 const instant=Date.parse('2026-10-06T21:25:00+03:00');
-const rotationNow=Date.parse('2026-10-07T10:55:49+03:00');
+const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
-test('catalogue now contains documentaries only',()=>{
+test('catalogue contains documentary material only and all new videos',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
- assert.deepEqual(new Set(Object.values(catalog.videos).map(v=>v.series)),new Set(['Цивилизация','Великие географические открытия']));
+ assert.equal(Object.keys(catalog.videos).length,40);
+ for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05']) assert.ok(catalog.videos[id],id);
 });
 
 test('published broadcasts have valid boundaries, including gaps and generated future',()=>{
@@ -27,10 +28,10 @@ test('reject overlapping shows, missing videos and dates without explicit zone',
  s=clone(schedule);s.programs[0].start='2026-10-06T12:30:00';assert.throws(()=>validate(catalog,s,rotationNow));
 });
 
-test('started broadcasts cannot be edited by changing edition; future rotation can change',()=>{
- const before={catalog,schedule};let s=clone(schedule);s.edition='new';s.programs[0].start='2026-10-06T12:29:59+03:00';assert.throws(()=>protectStarted(before,catalog,s,rotationNow));
+test('started broadcasts cannot be edited while future rotation can change',()=>{
+ const before={catalog,schedule,resolvedPrograms:validate(catalog,schedule,rotationNow).programs};let s=clone(schedule);s.edition='new';s.programs[0].start='2026-10-06T12:29:59+03:00';assert.throws(()=>protectStarted(before,catalog,s,rotationNow));
  s=clone(schedule);s.rotation.bumperSeconds=6;assert.doesNotThrow(()=>protectStarted(before,catalog,s,rotationNow));
- const c=clone(catalog);c.videos['voyages-discovery-02'].source.videoId='aaaaaaaaaaa';assert.throws(()=>protectStarted(before,c,s,rotationNow),/источник/);
+ const c=clone(catalog);c.videos['civilisation-07'].source.videoId='aaaaaaaaaaa';assert.throws(()=>protectStarted(before,c,s,rotationNow),/источник/);
 });
 
 test('validation rejection retains the previous working programme',()=>{
@@ -42,12 +43,12 @@ test('supports HTTPS video files and rejects executable or insecure URLs',()=>{
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule,rotationNow));}
 });
 
-test('automatic composer strictly alternates the two documentary cycles',()=>{
+test('automatic composer rotates four documentary directions and rounds starts',()=>{
  const {programs}=validate(catalog,schedule,rotationNow),shows=programs.filter(p=>p.auto);
- assert.ok(shows.length>50);
- assert.deepEqual(shows.slice(0,6).map(p=>p.rotationGroup),['civilisation','voyages','civilisation','voyages','civilisation','voyages']);
- assert.deepEqual(shows.slice(0,6).map(p=>p.video),['civilisation-07','voyages-discovery-03','civilisation-08','voyages-discovery-04','civilisation-09','voyages-discovery-05']);
- assert.equal(shows[0].start,'2026-10-07T11:45:00.000+03:00');
+ assert.ok(shows.length>40);
+ assert.deepEqual(shows.slice(0,8).map(p=>p.rotationGroup),['documentaries','earth','civilisation','voyages','documentaries','earth','civilisation','voyages']);
+ assert.deepEqual(shows.slice(0,8).map(p=>p.video),['bbc-black-death','earth-bbc-01','civilisation-08','voyages-discovery-04','bbc-changing-planet','earth-bbc-02','civilisation-09','voyages-discovery-05']);
+ assert.equal(shows[0].start,'2026-10-07T13:35:00.000+03:00');
  for(let i=0;i<shows.length;i++){
    const local=new Date(shows[i].startMs+3*3600000);
    assert.equal(local.getUTCMinutes()%5,0);
@@ -59,20 +60,24 @@ test('automatic composer strictly alternates the two documentary cycles',()=>{
  }
 });
 
-test('new documentary episodes become premieres only on their first airing',()=>{
- const c=clone(catalog);
- c.videos['voyages-discovery-06']={
-   title:'Великие географические открытия - 6. Тестовая новая серия',
-   durationSeconds:3000,
-   source:{type:'youtube',videoId:'aaaaaaaaaaa'},
-   series:'Великие географические открытия',
-   episode:6,
-   category:'История и путешествия'
- };
- const shows=validate(c,schedule,rotationNow).programs.filter(p=>p.auto&&p.video==='voyages-discovery-06');
- assert.ok(shows.length>=2);
- assert.equal(shows[0].premiere,true);
- assert.equal(shows[1].premiere,undefined);
+test('Earth BBC airs in episode order',()=>{
+ const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&p.rotationGroup==='earth').slice(0,5);
+ assert.deepEqual(shows.map(p=>catalog.videos[p.video].episode),[1,2,3,4,5]);
+});
+
+test('one-off documentaries are all shown before the first one repeats',()=>{
+ const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&p.rotationGroup==='documentaries');
+ const firstRepeat=shows.findIndex((p,i)=>shows.slice(0,i).some(x=>x.video===p.video));
+ assert.ok(firstRepeat>=17);
+ assert.equal(new Set(shows.slice(0,17).map(p=>p.video)).size,17);
+});
+
+test('new material is marked premiere only on first airing',()=>{
+ const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto);
+ assert.equal(shows.find(p=>p.video==='bbc-black-death').premiere,true);
+ assert.equal(shows.find(p=>p.video==='earth-bbc-01').premiere,true);
+ assert.equal(shows.find(p=>p.video==='civilisation-08').premiere,undefined);
+ const second=shows.filter(p=>p.video==='earth-bbc-01')[1];assert.ok(second);assert.equal(second.premiere,undefined);
 });
 
 test('repeat protection keeps the same video at least eight hours apart',()=>{

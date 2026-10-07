@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "videos": {
     "civilisation-01": {
       "title": "Цивилизация - 1. На грани выживания",
@@ -270,6 +270,258 @@
       "year": "2006",
       "category": "История и путешествия",
       "summary": "История спасения экипажа американской подлодки USS Squalus в 1939 году. Операция с использованием спасательной камеры стала важной вехой в подводной технике и показала пределы - и возможности - работы человека на глубине."
+    },
+    "bbc-black-death": {
+      "title": "Черная смерть: как чума унесла половину населения Британии",
+      "durationSeconds": 3214,
+      "source": {
+        "type": "youtube",
+        "videoId": "VhcmoJ12DPY"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-changing-planet": {
+      "title": "Меняющаяся планета: какой будет Земля через 7 лет?",
+      "durationSeconds": 5953,
+      "source": {
+        "type": "youtube",
+        "videoId": "XMSE-zjwD0U"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-space-brian-cox": {
+      "title": "Космос: пространство, время, гравитация, инопланетяне",
+      "durationSeconds": 12021,
+      "source": {
+        "type": "youtube",
+        "videoId": "oI-_W1ALo2E"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-wonderful-seasons": {
+      "title": "Чудесные времена года. Самые живописные места нашей планеты",
+      "durationSeconds": 9302,
+      "source": {
+        "type": "youtube",
+        "videoId": "nZr1oqL0oZk"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-dinosaur-extinction": {
+      "title": "Почему вымерли динозавры? Последние дни самых могущественных существ",
+      "durationSeconds": 6150,
+      "source": {
+        "type": "youtube",
+        "videoId": "HHfbkvi7iL4"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-sun": {
+      "title": "Солнце: как живет и как умрет звезда в центре Солнечной системы",
+      "durationSeconds": 5385,
+      "source": {
+        "type": "youtube",
+        "videoId": "u5D6EthTzfU"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-largest-dinosaur": {
+      "title": "Аттенборо и самый большой динозавр на Земле",
+      "durationSeconds": 3158,
+      "source": {
+        "type": "youtube",
+        "videoId": "WT6NDRRTe9c"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-death-doula": {
+      "title": "Смертельно важный разговор: кто такая доула смерти и чем она помогает людям",
+      "durationSeconds": 4271,
+      "source": {
+        "type": "youtube",
+        "videoId": "nOMerAkjKMg"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-returning-gods": {
+      "title": "Возвращение богов: как Камбоджа пытается вернуть украденные сокровища",
+      "durationSeconds": 1740,
+      "source": {
+        "type": "youtube",
+        "videoId": "s7XSvMjYdf4"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-sea-dragon": {
+      "title": "Аттенборо и морской дракон",
+      "durationSeconds": 3128,
+      "source": {
+        "type": "youtube",
+        "videoId": "4lMr52pFzBU"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-birds-of-paradise": {
+      "title": "Райские птицы: откуда у них такое завораживающее оперение?",
+      "durationSeconds": 3094,
+      "source": {
+        "type": "youtube",
+        "videoId": "oUNCVamhVd0"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-egg": {
+      "title": "Яйцо: самое совершенное творение природы",
+      "durationSeconds": 3159,
+      "source": {
+        "type": "youtube",
+        "videoId": "3NyJcejlW3o"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-pompeii": {
+      "title": "Помпеи: что скрывает погребенный древнеримский город?",
+      "durationSeconds": 5689,
+      "source": {
+        "type": "youtube",
+        "videoId": "qiSefk2kf0Y"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-911": {
+      "title": "Атаки 11 сентября: доказательства, которые скрывали больше 20 лет",
+      "durationSeconds": 3523,
+      "source": {
+        "type": "youtube",
+        "videoId": "kJ-aTW_nDwg"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "bbc-tutankhamun": {
+      "title": "Загадка Тутанхамона: что нашли под бинтами знаменитой мумии",
+      "durationSeconds": 2644,
+      "source": {
+        "type": "youtube",
+        "videoId": "BDYTcWkFcu0"
+      },
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Документальные фильмы"
+    },
+    "natgeo-earth-biography": {
+      "title": "Земля: Биография планеты",
+      "durationSeconds": 5639,
+      "source": {
+        "type": "youtube",
+        "videoId": "kS2t0kvIMmw"
+      },
+      "author": "National Geographic",
+      "country": "National Geographic",
+      "category": "Документальные фильмы"
+    },
+    "natgeo-edge-universe": {
+      "title": "Путешествие на край Вселенной",
+      "durationSeconds": 5433,
+      "source": {
+        "type": "youtube",
+        "videoId": "Lert9K_4VjU"
+      },
+      "author": "National Geographic",
+      "country": "National Geographic",
+      "category": "Документальные фильмы"
+    },
+    "earth-bbc-01": {
+      "title": "Земля BBC - 1. Огненный ад",
+      "durationSeconds": 3126,
+      "source": {
+        "type": "youtube",
+        "videoId": "aosi2biz3pY"
+      },
+      "series": "Земля BBC",
+      "episode": 1,
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Природа и наука"
+    },
+    "earth-bbc-02": {
+      "title": "Земля BBC - 2. Ледяное царство",
+      "durationSeconds": 3133,
+      "source": {
+        "type": "youtube",
+        "videoId": "N-5imv3PHDw"
+      },
+      "series": "Земля BBC",
+      "episode": 2,
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Природа и наука"
+    },
+    "earth-bbc-03": {
+      "title": "Земля BBC - 3. Растительность",
+      "durationSeconds": 3068,
+      "source": {
+        "type": "youtube",
+        "videoId": "t9JqD4F3X4A"
+      },
+      "series": "Земля BBC",
+      "episode": 3,
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Природа и наука"
+    },
+    "earth-bbc-04": {
+      "title": "Земля BBC - 4. Атмосфера",
+      "durationSeconds": 3131,
+      "source": {
+        "type": "youtube",
+        "videoId": "NNH6HjmHZzw"
+      },
+      "series": "Земля BBC",
+      "episode": 4,
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Природа и наука"
+    },
+    "earth-bbc-05": {
+      "title": "Земля BBC - 5. Человек",
+      "durationSeconds": 3135,
+      "source": {
+        "type": "youtube",
+        "videoId": "ej9yIH_-TEk"
+      },
+      "series": "Земля BBC",
+      "episode": 5,
+      "author": "BBC",
+      "country": "Великобритания · BBC",
+      "category": "Природа и наука"
     }
   }
 }

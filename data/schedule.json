@@ -1,7 +1,7 @@
 {
-  "version": 10,
-  "catalogVersion": 5,
-  "edition": "documentaries-only-20261007",
+  "version": 11,
+  "catalogVersion": 6,
+  "edition": "expanded-documentary-rotation-20261007",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -171,11 +171,29 @@
       "start": "2026-10-07T10:45:00.000+03:00",
       "end": "2026-10-07T11:44:00.000+03:00",
       "theme": "Великие географические открытия"
+    },
+    {
+      "id": "auto-202610071145-civilisation-civilisation-07",
+      "video": "civilisation-07",
+      "start": "2026-10-07T11:45:00.000+03:00",
+      "end": "2026-10-07T12:33:58.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "frozen": true
+    },
+    {
+      "id": "auto-202610071235-voyages-voyages-discovery-03",
+      "video": "voyages-discovery-03",
+      "start": "2026-10-07T12:35:00.000+03:00",
+      "end": "2026-10-07T13:34:00.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "frozen": true
     }
   ],
   "rotation": {
     "enabled": true,
-    "anchor": "2026-10-07T11:45:00+03:00",
+    "anchor": "2026-10-07T13:35:00+03:00",
     "slotMinutes": 5,
     "horizonHours": 168,
     "minRepeatHours": 8,
@@ -192,6 +210,18 @@
         "type": "series",
         "value": "Великие географические открытия",
         "label": "Великие географические открытия"
+      },
+      {
+        "id": "documentaries",
+        "type": "category",
+        "value": "Документальные фильмы",
+        "label": "Документальный фильм"
+      },
+      {
+        "id": "earth",
+        "type": "series",
+        "value": "Земля BBC",
+        "label": "Земля BBC"
       }
     ]
   }
