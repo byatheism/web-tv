@@ -1,7 +1,7 @@
 {
-  "version": 12,
-  "catalogVersion": 6,
-  "edition": "fixed-three-day-programme-20261007",
+  "version": 13,
+  "catalogVersion": 8,
+  "edition": "hourly-documentaries-with-webcams-20261007",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -193,8 +193,8 @@
   ],
   "rotation": {
     "enabled": true,
-    "anchor": "2026-10-07T13:35:00+03:00",
-    "slotMinutes": 5,
+    "anchor": "2026-10-07T14:00:00+03:00",
+    "slotMinutes": 60,
     "horizonHours": 168,
     "minRepeatHours": 8,
     "bumperSeconds": 8,
@@ -224,6 +224,12 @@
         "label": "Земля BBC"
       }
     ],
-    "freezeDays": 3
+    "freezeDays": 3,
+    "filler": {
+      "id": "webcams",
+      "type": "category",
+      "value": "Веб-камеры",
+      "label": "Прямой эфир - веб-камера"
+    }
   }
 }
