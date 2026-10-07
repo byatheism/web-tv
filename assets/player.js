@@ -1,10 +1,10 @@
 import {Programme,BroadcastClock} from './schedule.js?v=0.4.0';
 import {$,time,date,el,duration} from './common.js?v=0.4.0';
-import {createMedia,loadYouTube} from './media.js?v=0.4.0';
+import {createMedia,loadYouTube} from './media.js?v=0.4.2';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
-let powered=false,media=null,ready=false,starting=false,generation=0,loaded=null,ended=null,retries=0,retryAt=0,failed=false,lastProgress=0,lastPosition=-1,lastSync=0,listKey='',transitionTimer=0,transitionAt=0,fadeTimer=0,fadeAt=0,breakRevealTimer=0;
+let powered=false,media=null,ready=false,starting=false,generation=0,loaded=null,prepared=null,ended=null,retries=0,retryAt=0,failed=false,lastProgress=0,lastPosition=-1,lastSync=0,listKey='',transitionTimer=0,transitionAt=0,fadeTimer=0,fadeAt=0,breakRevealTimer=0;
 let volume=70,muted=false,lastAudible=70;
 
 try{
@@ -69,6 +69,7 @@ function clearMedia(){
   generation++;
   ready=false;
   starting=false;
+  prepared=null;
   try{media?.destroy();}catch{}
   media=null;
   $('player')?.remove();
@@ -79,9 +80,7 @@ function clearMedia(){
   if(cover)cover.before(host);else $('standby').parentNode.append(host);
   setStartCover(false);
 }
-function resetShow(id){
-  clearMedia();
-  loaded=id;
+function resetFailure(){
   retries=0;
   retryAt=0;
   failed=false;
@@ -95,12 +94,103 @@ function fail(){
   retryAt=clock.now()+delays[Math.min(retries,delays.length-1)];
 }
 function autoplayBlocked(){
+  // A background tab may reject a fresh autoplay. Keep the TV powered;
+  // visibilitychange will retry the already prepared player when necessary.
+  if(document.hidden)return;
   clearMedia();
   setPower(false);
   $('status').textContent='Нажмите кнопку питания ещё раз, чтобы разрешить воспроизведение.';
 }
+function eventsFor(p,token){
+  const valid=()=>token===generation&&powered&&programme.active()?.id===p.id;
+  return {
+    ready(m){
+      if(!valid()){m.destroy();return;}
+      media=m;
+      ready=true;
+      starting=false;
+      sound();
+      media.play();
+    },
+    playing(){
+      if(!valid()||!media)return;
+      failed=false;
+      retries=0;
+      lastProgress=clock.now();
+      $('status').textContent='';
+      setTimeout(()=>{
+        if(!valid())return;
+        setStartCover(false);
+        requestAnimationFrame(()=>setBroadcastFade(false));
+      },220);
+    },
+    paused(){
+      if(valid()&&ready&&!failed&&!document.hidden)media?.play();
+    },
+    ended(){
+      if(!valid())return;
+      if(clock.now()<p.endMs-5000){
+        clearMedia();
+        setStartCover(true);
+        if(!document.hidden)setTimeout(()=>start(p),200);
+      }else{
+        ended=p.id;
+        setBroadcastFade(true);
+        setTimeout(()=>{
+          try{media?.pause();}catch{}
+          prepareNext();
+          revealBreak();
+        },420);
+      }
+    },
+    error(){if(valid()&&!document.hidden)fail();},
+    blocked(){if(valid())autoplayBlocked();}
+  };
+}
+function prepareShow(p,offset=0){
+  if(!powered||!p||!media||!media.canReuse?.(programme.video(p)))return false;
+  const token=++generation;
+  const ok=media.prepare(programme.video(p),Math.max(0,offset),eventsFor(p,token));
+  if(!ok){generation--;return false;}
+  prepared={id:p.id,token};
+  loaded=null;
+  starting=false;
+  ready=true;
+  resetFailure();
+  lastPosition=-1;
+  sound();
+  return true;
+}
+function prepareNext(){
+  if(!powered||!programme.raw||starting)return false;
+  const next=programme.next(clock.now(),1)[0];
+  if(!next)return false;
+  if(prepared?.id===next.id&&media)return true;
+  try{media?.pause();}catch{}
+  return prepareShow(next,0);
+}
+function activatePrepared(p){
+  if(!powered||!p||!media||prepared?.id!==p.id)return false;
+  loaded=p.id;
+  prepared=null;
+  starting=false;
+  ready=true;
+  resetFailure();
+  lastProgress=clock.now();
+  lastPosition=-1;
+  clearTimeout(breakRevealTimer);
+  setBroadcastFade(true,true);
+  setStartCover(true);
+  sound();
+  try{media.play();return true;}catch{return false;}
+}
 async function start(p){
   if(starting||!powered||!p)return;
+  if(activatePrepared(p))return;
+  if(media&&prepareShow(p,Math.max(0,(clock.now()-p.startMs)/1000))&&activatePrepared(p))return;
+
+  clearMedia();
+  loaded=p.id;
   starting=true;
   failed=false;
   lastProgress=clock.now();
@@ -109,54 +199,12 @@ async function start(p){
   setBroadcastFade(true,true);
   setStartCover(true);
   const token=++generation;
-  const valid=()=>token===generation&&powered&&programme.active()?.id===p.id;
   try{
-    const result=await createMedia($('player'),programme.video(p),Math.max(0,(clock.now()-p.startMs)/1000),{
-      ready(m){
-        if(!valid()){m.destroy();return;}
-        media=m;
-        ready=true;
-        starting=false;
-        sound();
-        media.play();
-      },
-      playing(){
-        if(!valid()||!media)return;
-        failed=false;
-        retries=0;
-        lastProgress=clock.now();
-        $('status').textContent='';
-        setTimeout(()=>{
-          if(!valid())return;
-          setStartCover(false);
-          requestAnimationFrame(()=>setBroadcastFade(false));
-        },220);
-      },
-      paused(){
-        if(valid()&&ready&&!failed&&!document.hidden)media?.play();
-      },
-      ended(){
-        if(!valid())return;
-        if(clock.now()<p.endMs-5000){
-          clearMedia();
-          setStartCover(true);
-          if(!document.hidden)setTimeout(()=>start(p),200);
-        }else{
-          ended=p.id;
-          setBroadcastFade(true);
-          setTimeout(()=>{
-            clearMedia();
-            revealBreak();
-          },420);
-        }
-      },
-      error(){if(valid()&&!document.hidden)fail();},
-      blocked(){if(valid())autoplayBlocked();}
-    });
-    if(!valid()){result?.destroy();return;}
+    const result=await createMedia($('player'),programme.video(p),Math.max(0,(clock.now()-p.startMs)/1000),eventsFor(p,token));
+    if(token!==generation){result?.destroy();return;}
     if(result)media=result;
   }catch{
-    if(valid()&&!document.hidden)fail();
+    if(token===generation&&!document.hidden)fail();
   }
 }
 function synchronize(){
@@ -251,7 +299,7 @@ function armTransitionTimer(){
   if(transitionTimer&&transitionAt===target)return;
   clearTransitionTimer();
   transitionAt=target;
-  const delay=Math.max(0,Math.min(2147483000,target-now+150));
+  const delay=Math.max(0,Math.min(2147483000,target-now+120));
   transitionTimer=setTimeout(()=>{
     transitionTimer=0;
     transitionAt=0;
@@ -271,14 +319,17 @@ function tick(){
   armTransitionTimer();
   armEndFade(p);
   if(!p){
-    if(media||starting){
-      setBroadcastFade(true,true);
-      clearMedia();
-      revealBreak();
+    if(media){
+      try{media.pause();}catch{}
+      prepareNext();
     }
+    revealBreak();
     return;
   }
-  if(loaded!==p.id)resetShow(p.id);
+  if(loaded!==p.id){
+    if(!activatePrepared(p))start(p);
+    return;
+  }
   if(failed){
     if(document.hidden)return;
     if(clock.now()>=retryAt){
@@ -317,12 +368,14 @@ $('power').onclick=()=>{
     clearMedia();
     setPower(false);
     loaded=null;
+    prepared=null;
     ended=null;
     failed=false;
     $('status').textContent='';
   }else if(programme.raw){
     setPower(true);
     loaded=null;
+    prepared=null;
     $('status').textContent='';
     tick();
     armTransitionTimer();
@@ -374,7 +427,10 @@ document.addEventListener('fullscreenchange',()=>{
 });
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
-    if(powered)armTransitionTimer();
+    if(powered){
+      if(!programme.active())prepareNext();
+      armTransitionTimer();
+    }
     return;
   }
   const now=clock.now();
