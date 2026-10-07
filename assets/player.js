@@ -4,7 +4,7 @@ import {createMedia,loadYouTube} from './media.js?v=0.3.0';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
-let powered=false,media=null,ready=false,starting=false,generation=0,loaded=null,ended=null,retries=0,retryAt=0,failed=false,lastProgress=0,lastPosition=-1,lastSync=0,listKey='';
+let powered=false,media=null,ready=false,starting=false,generation=0,loaded=null,ended=null,retries=0,retryAt=0,failed=false,lastProgress=0,lastPosition=-1,lastSync=0,listKey='',transitionTimer=0,transitionAt=0;
 let volume=70,muted=false,lastAudible=70;
 
 try{
@@ -83,7 +83,7 @@ function autoplayBlocked(){
   $('status').textContent='Нажмите кнопку питания ещё раз, чтобы разрешить воспроизведение.';
 }
 async function start(p){
-  if(starting||!powered||!p||document.hidden)return;
+  if(starting||!powered||!p)return;
   starting=true;
   failed=false;
   lastProgress=clock.now();
@@ -187,15 +187,43 @@ function render(){
   }
   return p;
 }
+function clearTransitionTimer(){
+  if(transitionTimer)clearTimeout(transitionTimer);
+  transitionTimer=0;
+  transitionAt=0;
+}
+function armTransitionTimer(){
+  if(!powered||!programme.raw){clearTransitionTimer();return;}
+  const now=clock.now(),next=programme.next(now,1)[0];
+  if(!next){clearTransitionTimer();return;}
+  const target=next.startMs;
+  if(transitionTimer&&transitionAt===target)return;
+  clearTransitionTimer();
+  transitionAt=target;
+  const delay=Math.max(0,Math.min(2147483000,target-now+150));
+  transitionTimer=setTimeout(()=>{
+    transitionTimer=0;
+    transitionAt=0;
+    if(powered){
+      tick();
+      armTransitionTimer();
+    }
+  },delay);
+}
 function tick(){
   const p=render();
-  if(!powered||document.hidden)return;
+  if(!powered){
+    clearTransitionTimer();
+    return;
+  }
+  armTransitionTimer();
   if(!p){
     if(media||starting)clearMedia();
     return;
   }
   if(loaded!==p.id)resetShow(p.id);
   if(failed){
+    if(document.hidden)return;
     if(clock.now()>=retryAt){
       retries++;
       clearMedia();
@@ -207,6 +235,7 @@ function tick(){
     start(p);
     return;
   }
+  if(document.hidden)return;
   if((starting||ready)&&clock.now()-lastProgress>25000){
     fail();
     return;
@@ -225,6 +254,7 @@ function tick(){
 
 $('power').onclick=()=>{
   if(powered){
+    clearTransitionTimer();
     clearMedia();
     setPower(false);
     loaded=null;
@@ -236,6 +266,7 @@ $('power').onclick=()=>{
     loaded=null;
     $('status').textContent='';
     tick();
+    armTransitionTimer();
   }
 };
 $('volume').oninput=e=>{
@@ -283,7 +314,10 @@ document.addEventListener('fullscreenchange',()=>{
   wake();
 });
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden)return;
+  if(document.hidden){
+    if(powered)armTransitionTimer();
+    return;
+  }
   const now=clock.now();
   lastProgress=now;
   lastSync=now;
@@ -292,13 +326,13 @@ document.addEventListener('visibilitychange',()=>{
     try{if(media.state()!==1)media.play();}catch{}
   }
   tick();
-  programme.refresh().then(()=>{render();if(powered)tick();});
+  programme.refresh().then(()=>{render();if(powered){tick();armTransitionTimer();}});
 });
 window.addEventListener('online',()=>{
   programme.refresh().then(()=>{
     if(powered&&failed){retryAt=0;retries=0;}
     render();
-    if(powered&&!document.hidden)tick();
+    if(powered){tick();armTransitionTimer();}
   });
 });
 
@@ -315,7 +349,7 @@ async function init(){
   for(const id of ['power','mute','volume'])$(id).disabled=false;
   render();
   loadYouTube().catch(()=>{});
-  setInterval(()=>programme.refresh().then(()=>{render();if(powered&&!document.hidden)tick();}),60000);
+  setInterval(()=>programme.refresh().then(()=>{render();if(powered){tick();armTransitionTimer();}}),60000);
 }
 setInterval(tick,1000);
 init();
