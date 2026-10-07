@@ -1,6 +1,6 @@
 import {Programme,BroadcastClock} from './schedule.js?v=0.4.0';
 import {$,time,date,el,duration} from './common.js?v=0.4.0';
-import {createMedia,loadYouTube} from './media.js?v=0.4.2';
+import {createMedia,loadYouTube} from './media.js?v=0.4.3';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
@@ -171,6 +171,12 @@ function prepareNext(){
 }
 function activatePrepared(p){
   if(!powered||!p||!media||prepared?.id!==p.id)return false;
+  const offset=Math.max(0,(clock.now()-p.startMs)/1000);
+  const token=++generation;
+  if(!media.prepare(programme.video(p),offset,eventsFor(p,token))){
+    generation--;
+    return false;
+  }
   loaded=p.id;
   prepared=null;
   starting=false;
@@ -327,6 +333,7 @@ function tick(){
     return;
   }
   if(loaded!==p.id){
+    if(document.hidden)return;
     if(!activatePrepared(p))start(p);
     return;
   }
@@ -438,7 +445,12 @@ document.addEventListener('visibilitychange',()=>{
   lastSync=now;
   const p=programme.active();
   if(powered&&p&&loaded===p.id&&ready&&media){
-    try{if(media.state()!==1)media.play();}catch{}
+    const expected=Math.max(0,(now-p.startMs)/1000);
+    try{
+      const position=media.time();
+      if(Number.isFinite(position)&&Math.abs(position-expected)>3)media.seek(expected);
+      if(media.state()!==1)media.play();
+    }catch{}
   }
   tick();
   programme.refresh().then(()=>{render();if(powered){tick();armTransitionTimer();}});
