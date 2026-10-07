@@ -12,35 +12,34 @@ jobs:
   metadata:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe public metadata mirrors
+      - name: Probe YouTube player API clients
         shell: bash
         run: |
-          python - <<'PY'
-          import json, urllib.request, urllib.error, ssl
-          ids=["s7XSvMjYdf4","Lert9K_4VjU"]
-          endpoints=[
-            ("piped-adminforge","https://pipedapi.adminforge.de/streams/{id}"),
-            ("piped-really","https://pipedapi.reallyaweso.me/streams/{id}"),
-            ("piped-leptons","https://pipedapi.leptons.xyz/streams/{id}"),
-            ("invidious-yewtu","https://yewtu.be/api/v1/videos/{id}"),
-            ("invidious-nadeko","https://inv.nadeko.net/api/v1/videos/{id}")
-          ]
-          for vid in ids:
-            found=False
-            for name,tpl in endpoints:
-              try:
-                req=urllib.request.Request(tpl.format(id=vid),headers={"User-Agent":"Mozilla/5.0"})
-                with urllib.request.urlopen(req,timeout=15,context=ssl.create_default_context()) as r:
-                  d=json.load(r)
-                out={"id":vid,"source":name,"title":d.get("title"),"duration":d.get("duration")}
-                if out["duration"] is None:
-                  out["duration"]=d.get("lengthSeconds")
-                print("MIRROR",json.dumps(out,ensure_ascii=False))
-                if out["duration"]:
-                  found=True
-                  break
-              except Exception as e:
-                print("MIRROR_ERR",json.dumps({"id":vid,"source":name,"error":str(e)[:150]},ensure_ascii=False))
-            if not found:
-              print("MIRROR_NONE",vid)
-          PY
+          node --input-type=module <<'NODE'
+          const ids=["s7XSvMjYdf4","Lert9K_4VjU"];
+          const key='AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
+          const clients=[
+            {name:'ANDROID',body:{clientName:'ANDROID',clientVersion:'19.29.37',androidSdkVersion:30,hl:'ru',gl:'BY'}},
+            {name:'TVHTML5',body:{clientName:'TVHTML5',clientVersion:'7.20240909',hl:'ru',gl:'BY'}},
+            {name:'WEB',body:{clientName:'WEB',clientVersion:'2.20240909.01.00',hl:'ru',gl:'BY'}}
+          ];
+          for(const id of ids){
+            for(const c of clients){
+              try{
+                const r=await fetch('https://www.youtube.com/youtubei/v1/player?key='+key,{
+                  method:'POST',
+                  headers:{'content-type':'application/json','user-agent':'Mozilla/5.0'},
+                  body:JSON.stringify({context:{client:c.body},videoId:id,contentCheckOk:true,racyCheckOk:true})
+                });
+                const d=await r.json();
+                console.log('PLAYER '+JSON.stringify({
+                  id,client:c.name,http:r.status,status:d.playabilityStatus?.status??null,
+                  reason:d.playabilityStatus?.reason??null,
+                  title:d.videoDetails?.title??null,
+                  duration:d.videoDetails?.lengthSeconds?Number(d.videoDetails.lengthSeconds):null
+                }));
+                if(d.videoDetails?.lengthSeconds)break;
+              }catch(e){console.log('PLAYER_ERR '+JSON.stringify({id,client:c.name,error:String(e)}));}
+            }
+          }
+          NODE
