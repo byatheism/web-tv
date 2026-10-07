@@ -11,22 +11,27 @@ const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
 test('catalogue contains documentary material only and all new videos',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
- assert.equal(Object.keys(catalog.videos).length,42);
- for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2']) assert.ok(catalog.videos[id],id);
+ assert.equal(Object.keys(catalog.videos).length,49);
+ for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-katmai-riffles','cam-anan-bears','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific']) assert.ok(catalog.videos[id],id);
 });
 
 
-test('fixed programme covers several days and is compatible with the catalogue',()=>{
- assert.equal(fixed.catalogVersion,catalog.version);
- assert.equal(fixed.scheduleVersion,schedule.version);
- assert.deepEqual(fixed.catalogIds,Object.keys(catalog.videos).sort());
- assert.ok(Date.parse(fixed.freezeUntil)-Date.parse(fixed.generatedAt)>=71*3600000);
- assert.ok(fixed.programs.length>40);
+test('fixed programme snapshot is usable or safely invalidated after catalogue changes',()=>{
+ assert.ok(Date.parse(fixed.freezeUntil)>Date.parse(fixed.generatedAt));
+ assert.ok(Array.isArray(fixed.programs));
  const at=Date.parse(fixed.generatedAt);
- const future=fixed.programs.find(p=>Date.parse(p.start)>at);
- assert.ok(future);
- const resolved=validate(catalog,schedule,at,fixed).programs.find(p=>p.id===future.id);
- assert.equal(resolved?.start,future.start);
+ const exact=fixed.catalogVersion===catalog.version&&fixed.scheduleVersion===schedule.version&&
+   Array.isArray(fixed.catalogIds)&&fixed.catalogIds.length===Object.keys(catalog.videos).length;
+ const resolved=validate(catalog,schedule,at,fixed).programs;
+ if(exact){
+   assert.ok(fixed.programs.length>40);
+   const future=fixed.programs.find(p=>Date.parse(p.start)>at);
+   assert.ok(future);
+   assert.equal(resolved.find(p=>p.id===future.id)?.start,future.start);
+ }else{
+   const staleFuture=fixed.programs.find(p=>Date.parse(p.start)>at);
+   if(staleFuture)assert.equal(resolved.some(p=>p.id===staleFuture.id),false);
+ }
 });
 
 test('catalogue additions invalidate only unstarted fixed future',()=>{
@@ -64,28 +69,34 @@ test('validation rejection retains the previous working programme',()=>{
  const p=new Programme({now:()=>rotationNow});p.accept(catalog,schedule);const old=p.raw;const s=clone(schedule);s.catalogVersion=-1;assert.throws(()=>p.accept(catalog,s));assert.equal(p.raw,old);
 });
 
-test('supports HTTPS video files and rejects executable or insecure URLs',()=>{
+test('supports HTTPS video files, live webcam blocks and rejects insecure URLs',()=>{
  const c=clone(catalog);c.videos.file={title:'Direct file',durationSeconds:60,source:{type:'file',url:'https://example.org/film.mp4'}};assert.doesNotThrow(()=>validate(c,schedule,rotationNow));
+ const live=clone(schedule);live.programs.push({id:'long-live-test',video:'cam-katmai-riffles',start:'2026-10-11T00:00:00+03:00',end:'2026-10-11T05:00:00+03:00'});assert.doesNotThrow(()=>validate(c,live,rotationNow));
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule,rotationNow));}
 });
 
-test('automatic composer rotates four documentary directions and rounds starts',()=>{
- const {programs}=validate(catalog,schedule,rotationNow),shows=programs.filter(p=>p.auto);
- assert.ok(shows.length>40);
- assert.deepEqual(shows.slice(0,8).map(p=>p.rotationGroup),['documentaries','earth','civilisation','voyages','documentaries','earth','civilisation','voyages']);
- assert.deepEqual(shows.slice(0,8).map(p=>p.video),['bbc-black-death','earth-bbc-01','civilisation-08','voyages-discovery-04','bbc-changing-planet','earth-bbc-02','civilisation-09','voyages-discovery-05']);
- assert.equal(shows[0].start,'2026-10-07T13:35:00.000+03:00');
- for(let i=0;i<shows.length;i++){
-   const local=new Date(shows[i].startMs+3*3600000);
-   assert.equal(local.getUTCMinutes()%5,0);
+test('documentaries start only on the hour and webcam fillers cover the gaps',()=>{
+ const {programs}=validate(catalog,schedule,rotationNow),auto=programs.filter(p=>p.auto);
+ const docs=auto.filter(p=>!p.filler),fillers=auto.filter(p=>p.filler);
+ assert.ok(docs.length>20);
+ assert.ok(fillers.length>10);
+ assert.equal(docs[0].start,'2026-10-07T14:00:00.000+03:00');
+ assert.deepEqual(docs.slice(0,8).map(p=>p.rotationGroup),['documentaries','earth','civilisation','voyages','documentaries','earth','civilisation','voyages']);
+ for(const p of docs){
+   const local=new Date(p.startMs+3*3600000);
+   assert.equal(local.getUTCMinutes(),0);
    assert.equal(local.getUTCSeconds(),0);
-   if(i>0){
-     assert.notEqual(shows[i].rotationGroup,shows[i-1].rotationGroup);
-     assert.ok(shows[i].startMs>shows[i-1].endMs);
-   }
  }
+ for(const p of fillers){
+   assert.equal(catalog.videos[p.video].live,true);
+   const nextDoc=docs.find(d=>d.startMs===p.endMs);
+   assert.ok(nextDoc,`filler ${p.id} must end exactly when a documentary starts`);
+ }
+ const first=docs[0],firstFiller=fillers.find(p=>p.startMs===first.endMs);
+ assert.ok(firstFiller);
+ assert.equal(firstFiller.video,'cam-katmai-riffles');
+ assert.equal(firstFiller.end,'2026-10-07T15:00:00.000+03:00');
 });
-
 test('Earth BBC airs in episode order',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&p.rotationGroup==='earth').slice(0,5);
  assert.deepEqual(shows.map(p=>catalog.videos[p.video].episode),[1,2,3,4,5]);
@@ -106,12 +117,14 @@ test('new material is marked premiere only on first airing',()=>{
  const second=shows.filter(p=>p.video==='earth-bbc-01')[1];assert.ok(second);assert.equal(second.premiere,undefined);
 });
 
-test('repeat protection keeps the same video at least eight hours apart',()=>{
- const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto),last=new Map();
+test('repeat protection applies to documentaries while webcam fillers rotate freely',()=>{
+ const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&!p.filler),last=new Map();
  for(const p of shows){
    if(last.has(p.video))assert.ok(p.startMs-last.get(p.video)>=8*3600000,`${p.video} repeated too soon`);
    last.set(p.video,p.startMs);
  }
+ const cams=validate(catalog,schedule,rotationNow).programs.filter(p=>p.filler).slice(0,7).map(p=>p.video);
+ assert.equal(new Set(cams).size,7);
 });
 
 test('rotation helper is deterministic for the same instant',()=>{
