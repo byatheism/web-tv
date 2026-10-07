@@ -1,7 +1,7 @@
 {
-  "version": 11,
+  "version": 12,
   "catalogVersion": 6,
-  "edition": "expanded-documentary-rotation-20261007",
+  "edition": "fixed-three-day-programme-20261007",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -197,7 +197,7 @@
     "slotMinutes": 5,
     "horizonHours": 168,
     "minRepeatHours": 8,
-    "bumperSeconds": 5,
+    "bumperSeconds": 8,
     "groups": [
       {
         "id": "civilisation",
@@ -223,6 +223,7 @@
         "value": "Земля BBC",
         "label": "Земля BBC"
       }
-    ]
+    ],
+    "freezeDays": 3
   }
 }
