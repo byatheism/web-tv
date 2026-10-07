@@ -11,8 +11,8 @@ const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
 test('catalogue contains documentary material only and all new videos',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
- assert.equal(Object.keys(catalog.videos).length,40);
- for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05']) assert.ok(catalog.videos[id],id);
+ assert.equal(Object.keys(catalog.videos).length,42);
+ for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2']) assert.ok(catalog.videos[id],id);
 });
 
 
@@ -94,8 +94,8 @@ test('Earth BBC airs in episode order',()=>{
 test('one-off documentaries are all shown before the first one repeats',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&p.rotationGroup==='documentaries');
  const firstRepeat=shows.findIndex((p,i)=>shows.slice(0,i).some(x=>x.video===p.video));
- assert.ok(firstRepeat>=17);
- assert.equal(new Set(shows.slice(0,17).map(p=>p.video)).size,17);
+ assert.ok(firstRepeat>=19);
+ assert.equal(new Set(shows.slice(0,19).map(p=>p.video)).size,19);
 });
 
 test('new material is marked premiere only on first airing',()=>{

@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "videos": {
     "civilisation-01": {
       "title": "Цивилизация - 1. На грани выживания",
@@ -522,6 +522,26 @@
       "author": "BBC",
       "country": "Великобритания · BBC",
       "category": "Природа и наука"
+    },
+    "loneliness-in-space": {
+      "title": "Одиночество в космосе. Есть ли жизнь во Вселенной?",
+      "durationSeconds": 1244,
+      "source": {
+        "type": "youtube",
+        "videoId": "-l5VY9ifsfc"
+      },
+      "author": "Алексей Козлов",
+      "category": "Документальные фильмы"
+    },
+    "ashes-to-ashes-kcd2": {
+      "title": "Прах к праху | Kingdom Come: Deliverance II",
+      "durationSeconds": 1257,
+      "source": {
+        "type": "youtube",
+        "videoId": "ZQ9uKxsArxw"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Документальные фильмы"
     }
   }
 }
