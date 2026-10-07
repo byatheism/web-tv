@@ -12,47 +12,35 @@ jobs:
   metadata:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: |
-          npm install --no-save youtubei.js
-          pip install -q yt-dlp
-      - name: Read difficult durations
+      - name: Probe public metadata mirrors
         shell: bash
         run: |
-          node --input-type=module <<'NODE'
-          import { Innertube } from 'youtubei.js';
-          const yt = await Innertube.create({ lang: 'ru', location: 'BY' });
-          const ids = ["nOMerAkjKMg","s7XSvMjYdf4","kJ-aTW_nDwg","kS2t0kvIMmw","Lert9K_4VjU"];
-          for (const id of ids) {
-            let out={id};
-            try{
-              const info=await yt.getInfo(id);
-              const b=info.basic_info||{};
-              out.title=b.title??null;
-              out.basic_duration=b.duration??null;
-              const formats=[...(info.streaming_data?.formats||[]),...(info.streaming_data?.adaptive_formats||[])];
-              const ms=formats.map(x=>Number(x.approx_duration_ms)).find(Number.isFinite);
-              out.stream_duration=ms?Math.round(ms/1000):null;
-              out.playability=info.playability_status?.status??null;
-            }catch(e){out.youtubei_error=String(e)}
-            console.log('DIFF '+JSON.stringify(out));
-          }
-          NODE
           python - <<'PY'
-          import json, subprocess
-          ids=["nOMerAkjKMg","s7XSvMjYdf4","kJ-aTW_nDwg","kS2t0kvIMmw","Lert9K_4VjU"]
+          import json, urllib.request, urllib.error, ssl
+          ids=["s7XSvMjYdf4","Lert9K_4VjU"]
+          endpoints=[
+            ("piped-adminforge","https://pipedapi.adminforge.de/streams/{id}"),
+            ("piped-really","https://pipedapi.reallyaweso.me/streams/{id}"),
+            ("piped-leptons","https://pipedapi.leptons.xyz/streams/{id}"),
+            ("invidious-yewtu","https://yewtu.be/api/v1/videos/{id}"),
+            ("invidious-nadeko","https://inv.nadeko.net/api/v1/videos/{id}")
+          ]
           for vid in ids:
-              for client in ("web_embedded","tv_embedded","android_vr","web"):
-                  p=subprocess.run(["yt-dlp","--dump-single-json","--skip-download","--no-playlist","--extractor-args",f"youtube:player_client={client}",f"https://www.youtube.com/watch?v={vid}"],capture_output=True,text=True)
-                  if p.returncode==0:
-                      d=json.loads(p.stdout)
-                      print("YTDLP",json.dumps({"id":vid,"client":client,"title":d.get("title"),"duration":d.get("duration")},ensure_ascii=False))
-                      break
-              else:
-                  print("YTDLP_ERROR",json.dumps({"id":vid},ensure_ascii=False))
+            found=False
+            for name,tpl in endpoints:
+              try:
+                req=urllib.request.Request(tpl.format(id=vid),headers={"User-Agent":"Mozilla/5.0"})
+                with urllib.request.urlopen(req,timeout=15,context=ssl.create_default_context()) as r:
+                  d=json.load(r)
+                out={"id":vid,"source":name,"title":d.get("title"),"duration":d.get("duration")}
+                if out["duration"] is None:
+                  out["duration"]=d.get("lengthSeconds")
+                print("MIRROR",json.dumps(out,ensure_ascii=False))
+                if out["duration"]:
+                  found=True
+                  break
+              except Exception as e:
+                print("MIRROR_ERR",json.dumps({"id":vid,"source":name,"error":str(e)[:150]},ensure_ascii=False))
+            if not found:
+              print("MIRROR_NONE",vid)
           PY
