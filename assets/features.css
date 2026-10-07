@@ -19,16 +19,28 @@ progress::-webkit-progress-value{background:#f3bb57;border-radius:5px}
 #slate-countdown{color:#f3bb57}
 .tube video.native-player{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .startup-cover{position:absolute;inset:0;background:#000;z-index:2;pointer-events:none}
+.broadcast-fade{position:absolute;inset:0;z-index:6;background:#000;opacity:0;pointer-events:none;transition:opacity .75s cubic-bezier(.4,0,.2,1)}
+.broadcast-fade.active{opacity:1}
+.broadcast-fade.no-transition{transition:none}
 
 .premiere-badge{display:inline-block;vertical-align:1px;margin-right:3px;padding:1px 5px;border:1px solid #d7a54f;border-radius:3px;color:#ffd47e;background:#3a2d17;font-size:.68em;font-weight:800;letter-spacing:.08em;line-height:1.45}
-.ident{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;text-align:center;padding:28px;background:radial-gradient(circle at 50% 42%,#263847 0,#111922 48%,#05080c 100%);pointer-events:none}
+.ident{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:clamp(22px,5vw,58px);overflow:hidden;background:radial-gradient(ellipse at 68% 24%,#344d5d55 0,transparent 42%),linear-gradient(135deg,#071018 0,#14232e 45%,#090d13 100%);pointer-events:none}
+.ident::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 8%,#ffffff08 8.2% 8.35%,transparent 8.55% 91%,#ffffff06 91.2% 91.35%,transparent 91.55%),radial-gradient(ellipse at center,transparent 45%,#0008 100%);opacity:.8}
+.ident-scan{position:absolute;left:-20%;right:-20%;height:38%;top:-42%;background:linear-gradient(180deg,transparent,#d9f2ff0c 45%,#d9f2ff18 50%,#d9f2ff0c 55%,transparent);transform:skewY(-4deg);animation:ident-scan 3.2s linear infinite}
 .tv.pre-roll .off-air{display:none}
 .tv:not(.on) .ident{display:none!important}
-.ident-inner{width:min(760px,90%);animation:ident-in .45s ease-out both}
-.ident-brand{display:block;margin-bottom:22px;color:#f0bc61;font:bold 15px/1 system-ui;letter-spacing:10px;text-shadow:0 0 15px #f0bc6133}
-.ident-premiere{display:inline-block;margin-bottom:10px;padding:4px 9px;border:1px solid #d8a84f;border-radius:4px;color:#ffd477;background:#392b15;font-size:12px;font-weight:800;letter-spacing:.16em}
-.ident-title{font-size:clamp(20px,3vw,38px);font-weight:650;line-height:1.2;color:#eef3f8;text-shadow:0 2px 10px #000}
-@keyframes ident-in{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
+.ident-inner{position:relative;width:min(820px,92%);text-align:left;animation:ident-in .55s cubic-bezier(.2,.7,.2,1) both}
+.ident-header{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ident-brand{color:#f0bc61;font:bold 16px/1 system-ui;letter-spacing:11px;text-shadow:0 0 18px #f0bc6140}
+.ident-time{color:#ccd7e1;font:600 14px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.ident-rule{height:1px;margin:17px 0 20px;background:linear-gradient(90deg,#d8a64d 0 18%,#d8a64d33 42%,transparent 88%);transform-origin:left;animation:ident-rule .7s .08s ease-out both}
+.ident-kicker{margin-bottom:8px;color:#9fb0bf;font-size:11px;font-weight:750;letter-spacing:.22em}
+.ident-premiere{display:inline-block;margin:0 0 10px;padding:4px 9px;border:1px solid #d8a84f;border-radius:3px;color:#ffd477;background:#392b15cc;font-size:11px;font-weight:800;letter-spacing:.16em}
+.ident-title{max-width:900px;font-size:clamp(22px,3.5vw,44px);font-weight:650;line-height:1.12;color:#f1f5f8;text-wrap:balance;text-shadow:0 3px 16px #000}
+.ident-meta{margin-top:13px;color:#b5c1cb;font-size:clamp(11px,1.3vw,15px);letter-spacing:.035em}
+@keyframes ident-in{from{opacity:0;transform:translateY(8px) scale(.992)}to{opacity:1;transform:none}}
+@keyframes ident-rule{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes ident-scan{from{top:-42%}to{top:118%}}
 
 .tv:fullscreen{position:relative}
 .tv:fullscreen .deck{position:absolute;bottom:12px;left:18px;right:18px;z-index:5;background:#17202ce8;border-radius:10px;padding:10px;transition:opacity .2s}
@@ -53,7 +65,7 @@ progress::-webkit-progress-value{background:#f3bb57;border-radius:5px}
   .slate h2{margin:3px 0}
   .slate p{margin:3px 0}
 }
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.ident-scan{animation:none}.ident-inner,.ident-rule{animation:none}}
 
 /* About page */
 body.subpage main{display:block;height:auto;max-width:1180px;padding:24px}
