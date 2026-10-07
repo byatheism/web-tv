@@ -8,6 +8,11 @@ const schedule=JSON.parse(fs.readFileSync(new URL('../data/schedule.json',import
 const instant=Date.parse('2026-10-06T21:25:00+03:00');
 const rotationNow=Date.parse('2026-10-07T10:55:49+03:00');
 
+test('catalogue now contains documentaries only',()=>{
+ assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
+ assert.deepEqual(new Set(Object.values(catalog.videos).map(v=>v.series)),new Set(['Цивилизация','Великие географические открытия']));
+});
+
 test('published broadcasts have valid boundaries, including gaps and generated future',()=>{
  const {programs}=validate(catalog,schedule,rotationNow),p=new Programme({now:()=>rotationNow});p.accept(catalog,schedule,false);
  for(const show of programs){assert.equal(p.active(show.startMs)?.id,show.id);assert.equal(p.active(show.endMs-1)?.id,show.id);assert.notEqual(p.active(show.endMs)?.id,show.id);}
@@ -37,11 +42,11 @@ test('supports HTTPS video files and rejects executable or insecure URLs',()=>{
  for(const url of ['javascript:alert(1)','http://example.org/a.mp4','data:video/mp4;base64,AA']){c.videos.file.source.url=url;assert.throws(()=>validate(c,schedule,rotationNow));}
 });
 
-test('automatic composer rotates groups, rounds starts and preserves series order',()=>{
+test('automatic composer strictly alternates the two documentary cycles',()=>{
  const {programs}=validate(catalog,schedule,rotationNow),shows=programs.filter(p=>p.auto);
  assert.ok(shows.length>50);
- assert.deepEqual(shows.slice(0,6).map(p=>p.rotationGroup),['music','civilisation','music','civilisation','music','voyages']);
- assert.deepEqual(shows.slice(0,6).map(p=>p.video),['nofx-1998','civilisation-07','chuck-1965','civilisation-08','offspring-2024','voyages-discovery-03']);
+ assert.deepEqual(shows.slice(0,6).map(p=>p.rotationGroup),['civilisation','voyages','civilisation','voyages','civilisation','voyages']);
+ assert.deepEqual(shows.slice(0,6).map(p=>p.video),['civilisation-07','voyages-discovery-03','civilisation-08','voyages-discovery-04','civilisation-09','voyages-discovery-05']);
  assert.equal(shows[0].start,'2026-10-07T11:45:00.000+03:00');
  for(let i=0;i<shows.length;i++){
    const local=new Date(shows[i].startMs+3*3600000);
@@ -54,17 +59,26 @@ test('automatic composer rotates groups, rounds starts and preserves series orde
  }
 });
 
-test('premieres mark only first-ever site airing of a video',()=>{
- const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto);
- assert.equal(shows[0].video,'nofx-1998');assert.equal(shows[0].premiere,true);
- assert.equal(shows.find(p=>p.video==='civilisation-07').premiere,undefined);
- const secondNofx=shows.filter(p=>p.video==='nofx-1998')[1];assert.ok(secondNofx);assert.equal(secondNofx.premiere,undefined);
+test('new documentary episodes become premieres only on their first airing',()=>{
+ const c=clone(catalog);
+ c.videos['voyages-discovery-06']={
+   title:'Великие географические открытия - 6. Тестовая новая серия',
+   durationSeconds:3000,
+   source:{type:'youtube',videoId:'aaaaaaaaaaa'},
+   series:'Великие географические открытия',
+   episode:6,
+   category:'История и путешествия'
+ };
+ const shows=validate(c,schedule,rotationNow).programs.filter(p=>p.auto&&p.video==='voyages-discovery-06');
+ assert.ok(shows.length>=2);
+ assert.equal(shows[0].premiere,true);
+ assert.equal(shows[1].premiere,undefined);
 });
 
-test('repeat protection keeps the same video at least twelve hours apart',()=>{
+test('repeat protection keeps the same video at least eight hours apart',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto),last=new Map();
  for(const p of shows){
-   if(last.has(p.video))assert.ok(p.startMs-last.get(p.video)>=12*3600000,`${p.video} repeated too soon`);
+   if(last.has(p.video))assert.ok(p.startMs-last.get(p.video)>=8*3600000,`${p.video} repeated too soon`);
    last.set(p.video,p.startMs);
  }
 });

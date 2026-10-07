@@ -1,7 +1,7 @@
 {
-  "version": 9,
-  "catalogVersion": 4,
-  "edition": "auto-rotation-20261007",
+  "version": 10,
+  "catalogVersion": 5,
+  "edition": "documentaries-only-20261007",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -178,15 +178,9 @@
     "anchor": "2026-10-07T11:45:00+03:00",
     "slotMinutes": 5,
     "horizonHours": 168,
-    "minRepeatHours": 12,
+    "minRepeatHours": 8,
     "bumperSeconds": 5,
     "groups": [
-      {
-        "id": "music",
-        "type": "category",
-        "label": "Концерт",
-        "value": "Музыка"
-      },
       {
         "id": "civilisation",
         "type": "series",
