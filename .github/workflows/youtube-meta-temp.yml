@@ -12,21 +12,20 @@ jobs:
   metadata:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe page metadata
+      - name: Inspect duration hints
         shell: bash
         run: |
           node --input-type=module <<'NODE'
           for(const id of ['-l5VY9ifsfc','ZQ9uKxsArxw']){
+            const r=await fetch('https://www.youtube.com/watch?v='+id,{headers:{'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/152 Safari/537.36','accept-language':'ru,en;q=0.8'}});
+            const html=await r.text();
             const out={id};
-            for(const path of ['watch?v='+id,'embed/'+id]){
-              try{
-                const r=await fetch('https://www.youtube.com/'+path,{headers:{'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/152 Safari/537.36','accept-language':'ru,en;q=0.8'}});
-                const html=await r.text();
-                const lengths=[...html.matchAll(/"lengthSeconds":"?(\d+)"?/g)].map(m=>Number(m[1]));
-                const approx=[...html.matchAll(/"approxDurationMs":"?(\d+)"?/g)].map(m=>Math.round(Number(m[1])/1000));
-                out[path.startsWith('watch')?'watch':'embed']={status:r.status,bytes:html.length,lengths:[...new Set(lengths)].slice(0,10),approx:[...new Set(approx)].slice(0,10)};
-              }catch(e){out.error=String(e)}
+            for(const key of ['lengthText','duration','lengthSeconds','approxDurationMs','videoDetails']){
+              const i=html.indexOf(key);
+              out[key]=i<0?null:html.slice(Math.max(0,i-180),Math.min(html.length,i+420)).replace(/\s+/g,' ');
             }
+            const iso=[...html.matchAll(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/g)].slice(0,20).map(m=>m[0]);
+            out.iso=[...new Set(iso)];
             console.log('META '+JSON.stringify(out));
           }
           NODE
