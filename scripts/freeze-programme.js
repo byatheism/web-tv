@@ -1,3 +1,4 @@
+// Rolling fixed programme for hourly documentaries and webcam fillers.
 import fs from 'node:fs';
 import {validate} from '../assets/schedule.js';
 
