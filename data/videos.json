@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "videos": {
     "civilisation-01": {
       "title": "Цивилизация - 1. На грани выживания",
@@ -542,6 +542,83 @@
       },
       "author": "ShoobahDoobah",
       "category": "Документальные фильмы"
+    },
+    "cam-katmai-riffles": {
+      "title": "Катмай, Аляска - медведи у речных порогов",
+      "durationSeconds": 86400,
+      "source": {
+        "type": "youtube",
+        "videoId": "z7_GhJeFxQI"
+      },
+      "author": "Explore Bears",
+      "category": "Веб-камеры",
+      "live": true
+    },
+    "cam-anan-bears": {
+      "title": "Анан, Аляска - медведи на рыбалке",
+      "durationSeconds": 86400,
+      "source": {
+        "type": "youtube",
+        "videoId": "ypMu3yA7h3s"
+      },
+      "author": "Explore Bears",
+      "category": "Веб-камеры",
+      "live": true
+    },
+    "cam-utopia-top-wall": {
+      "title": "Utopia Village - подводный риф, верхняя стена",
+      "durationSeconds": 86400,
+      "source": {
+        "type": "youtube",
+        "videoId": "1zcIUk66HX4"
+      },
+      "author": "Explore Oceans",
+      "category": "Веб-камеры",
+      "live": true
+    },
+    "cam-tropical-reef": {
+      "title": "Тропический коралловый риф",
+      "durationSeconds": 86400,
+      "source": {
+        "type": "youtube",
+        "videoId": "DHUnz4dyb54"
+      },
+      "author": "Explore Live Nature Cams",
+      "category": "Веб-камеры",
+      "live": true
+    },
+    "cam-utopia-sandy-channel": {
+      "title": "Utopia Village - подводный риф, песчаный канал",
+      "durationSeconds": 86400,
+      "source": {
+        "type": "youtube",
+        "videoId": "jzx_n25g3kA"
+      },
+      "author": "Explore Oceans",
+      "category": "Веб-камеры",
+      "live": true
+    },
+    "cam-utopia-back-channel": {
+      "title": "Utopia Village - подводный риф, задний канал",
+      "durationSeconds": 86400,
+      "source": {
+        "type": "youtube",
+        "videoId": "nmjlQlYygB4"
+      },
+      "author": "Explore Oceans",
+      "category": "Веб-камеры",
+      "live": true
+    },
+    "cam-aquarium-pacific": {
+      "title": "Аквариум Тихого океана - кораллы и рыбы",
+      "durationSeconds": 86400,
+      "source": {
+        "type": "youtube",
+        "videoId": "h0F818upkgI"
+      },
+      "author": "Explore Nature for Kids",
+      "category": "Веб-камеры",
+      "live": true
     }
   }
 }
