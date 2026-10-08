@@ -1,0 +1,89 @@
+name: Temporary video metadata
+
+on:
+  push:
+    paths:
+      - '.github/workflows/video-meta-temp.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save youtubei.js puppeteer-core
+      - name: Read titles and actual player durations
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {Innertube} from 'youtubei.js';
+          import puppeteer from 'puppeteer-core';
+          import {execSync} from 'node:child_process';
+          import http from 'node:http';
+          const ids=["9o10FBKsZEQ","_-72bxSD43Q","6_ArGGxoP70","9NXCgPV2kvU"];
+          let yt=null;
+          try{yt=await Innertube.create({lang:'ru',location:'BY'});}catch(e){console.log('META_INIT '+String(e));}
+          const data={};
+          for(const id of ids){
+            const o={id};
+            if(yt){
+              try{
+                const info=await yt.getBasicInfo(id);
+                const b=info.basic_info||{};
+                o.title=b.title||null;
+                o.duration=b.duration||null;
+                o.author=b.channel?.name||b.author||null;
+                o.is_live=b.is_live??null;
+              }catch(e){o.youtubei_error=String(e).slice(0,120);}
+            }
+            if(!o.title){
+              try{
+                const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id);
+                const r=await fetch(url);
+                if(r.ok){const j=await r.json();o.title=j.title;o.author=j.author_name;}
+              }catch(e){o.oembed_error=String(e).slice(0,100);}
+            }
+            data[id]=o;
+          }
+          let chrome='';
+          for(const cmd of ['google-chrome','google-chrome-stable','chromium','chromium-browser']){
+            try{chrome=execSync('which '+cmd,{encoding:'utf8'}).trim();if(chrome)break;}catch{}
+          }
+          if(chrome){
+            let currentId='';
+            const server=http.createServer((req,res)=>{
+              res.writeHead(200,{'content-type':'text/html; charset=utf-8','referrer-policy':'strict-origin-when-cross-origin'});
+              res.end(`<!doctype html><html><head><meta name="referrer" content="strict-origin-when-cross-origin"></head><body><div id="p"></div><script>
+                window.done=null;
+                window.onYouTubeIframeAPIReady=()=>{
+                  const p=new YT.Player('p',{
+                    videoId:'${currentId}',
+                    playerVars:{controls:0,playsinline:1,origin:'http://127.0.0.1:8765'},
+                    events:{
+                      onReady:()=>setTimeout(()=>{window.done={duration:p.getDuration(),title:p.getVideoData()?.title||null,state:p.getPlayerState()}},2000),
+                      onError:e=>{window.done={error:e.data}}
+                    }
+                  });
+                };
+              <\/script><script src="https://www.youtube.com/iframe_api"><\/script></body></html>`);
+            });
+            await new Promise(r=>server.listen(8765,'127.0.0.1',r));
+            const browser=await puppeteer.launch({headless:true,executablePath:chrome,args:['--no-sandbox','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});
+            for(const id of ids){
+              currentId=id;
+              const page=await browser.newPage();
+              await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+              try{
+                await page.waitForFunction(()=>window.done!==null,{timeout:26000});
+                data[id].player=await page.evaluate(()=>window.done);
+              }catch(e){data[id].player_error=String(e).slice(0,130);}
+              await page.close();
+            }
+            await browser.close();server.close();
+          }
+          for(const id of ids)console.log('META_JSON '+JSON.stringify(data[id]));
+          NODE
