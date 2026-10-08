@@ -339,9 +339,16 @@ function tick(){
   }
   if(loaded!==p.id){
     if(document.hidden){
-      // The schedule changes even in a hidden tab, but YouTube playback
-      // cannot be initiated until the player is visible. Keep the stale
-      // video covered; a visible tick will load the current show directly.
+      // Stop the expired show and cue the current broadcast only once.
+      // YouTube doesn't allow initiating automatic playback while invisible,
+      // so the existing iframe starts this cued show upon visibility restore.
+      if(prepared?.id!==p.id){
+        try{media?.pause();}catch{}
+        if(media&&!starting){
+          const offset=programme.video(p).live?0:Math.max(0,(clock.now()-p.startMs)/1000);
+          prepareShow(p,offset);
+        }
+      }
       setBroadcastFade(true,true);
       setStartCover(true);
       return;
