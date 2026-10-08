@@ -29,8 +29,19 @@ test('fixed programme snapshot is usable or safely invalidated after catalogue c
    assert.ok(future);
    assert.equal(resolved.find(p=>p.id===future.id)?.start,future.start);
  }else{
-   const staleFuture=fixed.programs.find(p=>Date.parse(p.start)>at);
-   if(staleFuture)assert.equal(resolved.some(p=>p.id===staleFuture.id),false);
+   // A regenerated future broadcast can coincidentally keep the same ID and
+   // start time. Confirm the stale snapshot is ignored using a fake future ID.
+   const stale=clone(fixed);
+   stale.catalogVersion=-1;
+   stale.programs.push({
+     id:'must-not-survive-stale-snapshot',
+     video:'civilisation-01',
+     start:'2026-10-31T20:00:00+03:00',
+     end:'2026-10-31T20:50:02+03:00'
+   });
+   const fresh=validate(catalog,schedule,at,stale).programs;
+   assert.equal(fresh.some(p=>p.id==='must-not-survive-stale-snapshot'),false);
+   assert.ok(resolved.some(p=>p.auto));
  }
 });
 
