@@ -27,6 +27,19 @@ export async function createMedia(host,video,offset,events){
       state:()=>node.paused?2:node.readyState<3?3:1,
       sound(v,m){node.volume=v/100;node.muted=m;},
       canReuse(next){return next?.source?.type==='file';},
+      switchTo(next,start,nextEvents){
+        if(disposed||!media.canReuse(next))return false;
+        handlers=nextEvents;
+        current=next.source.url;
+        node.pause();
+        node.src=current;
+        node.preload='auto';
+        const seek=()=>{try{node.currentTime=Math.max(0,start||0);}catch{}};
+        if(node.readyState>=1)seek();else node.addEventListener('loadedmetadata',seek,{once:true});
+        node.load();
+        media.play();
+        return true;
+      },
       prepare(next,start,nextEvents){
         if(disposed||!media.canReuse(next))return false;
         handlers=nextEvents;
@@ -63,18 +76,36 @@ export async function createMedia(host,video,offset,events){
     state:()=>raw.getPlayerState(),
     sound(v,m){raw.setVolume(v);m?raw.mute():raw.unMute();},
     canReuse(next){return next?.source?.type==='youtube';},
+    switchTo(next,start,nextEvents){
+      if(disposed||!media.canReuse(next))return false;
+      const previousHandlers=handlers;
+      const previousId=currentId;
+      handlers=nextEvents;
+      currentId=next.source.videoId;
+      try{
+        // A single API call loads and starts the new broadcast. Calling
+        // cueVideoById() immediately before playVideo() races YouTube's async cue.
+        // This method must only be called while the player is visible.
+        raw.loadVideoById({videoId:currentId,startSeconds:next.live?0:Math.max(0,Math.floor(start||0))});
+        return true;
+      }catch{
+        handlers=previousHandlers;
+        currentId=previousId;
+        return false;
+      }
+    },
     prepare(next,start,nextEvents){
       if(disposed||!media.canReuse(next))return false;
       handlers=nextEvents;
       currentId=next.source.videoId;
       try{
-        raw.cueVideoById({videoId:currentId,startSeconds:Math.max(0,Math.floor(start||0))});
+        raw.cueVideoById({videoId:currentId,startSeconds:next.live?0:Math.max(0,Math.floor(start||0))});
         captions(raw);
         return true;
       }catch{return false;}
     }
   };
-  raw=new YT.Player(host,{videoId:currentId,width:'100%',height:'100%',playerVars:{start:Math.floor(offset),controls:0,disablekb:1,playsinline:1,origin:location.origin},events:{
+  raw=new YT.Player(host,{videoId:currentId,width:'100%',height:'100%',playerVars:{start:video.live?0:Math.floor(offset),controls:0,disablekb:1,playsinline:1,origin:location.origin},events:{
     onReady(){
       if(disposed)return;
       const frame=raw.getIframe();
