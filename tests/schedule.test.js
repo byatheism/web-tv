@@ -9,10 +9,10 @@ const fixed=JSON.parse(fs.readFileSync(new URL('../data/fixed-schedule.json',imp
 const instant=Date.parse('2026-10-06T21:25:00+03:00');
 const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
-test('catalogue contains documentary material only and all new videos',()=>{
+test('catalogue contains documentary films, game stories and webcam fillers',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
- assert.equal(Object.keys(catalog.videos).length,47);
- for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific']) assert.ok(catalog.videos[id],id);
+ assert.equal(Object.keys(catalog.videos).length,51);
+ for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific','one-eyed-likho-adventure','indika-religion-avantgarde','crime-scene-cleaner-01','crime-scene-cleaner-02']) assert.ok(catalog.videos[id],id);
 });
 
 
@@ -81,7 +81,8 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
  assert.ok(docs.length>20);
  assert.ok(fillers.length>10);
  assert.equal(docs[0].start,'2026-10-07T14:00:00.000+03:00');
- assert.deepEqual(docs.slice(0,8).map(p=>p.rotationGroup),['documentaries','earth','civilisation','voyages','documentaries','earth','civilisation','voyages']);
+ assert.ok(['documentaries','earth','civilisation','voyages','games'].every(g=>docs.slice(0,30).some(p=>p.rotationGroup===g)));
+ for(let i=1;i<docs.length;i++)assert.notEqual(docs[i-1].rotationGroup,docs[i].rotationGroup);
  for(const p of docs){
    const local=new Date(p.startMs+3*3600000);
    assert.equal(local.getUTCMinutes(),0);
@@ -99,6 +100,16 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
  assert.equal(afterFirst.video,'cam-tropical-reef');
  assert.equal(afterFirst.end,'2026-10-07T15:00:00.000+03:00');
 });
+test('the two Crime Scene Cleaner parts enter the game rotation in order',()=>{
+ const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.rotationGroup==='games');
+ const first=shows.findIndex(p=>p.video==='crime-scene-cleaner-01');
+ const second=shows.findIndex(p=>p.video==='crime-scene-cleaner-02');
+ assert.ok(first>=0&&second>first,'game episodes must be shown in their declared order');
+ assert.equal(catalog.videos['crime-scene-cleaner-01'].episode,1);
+ assert.equal(catalog.videos['crime-scene-cleaner-02'].episode,2);
+ assert.equal(shows.some(p=>p.video==='ashes-to-ashes-kcd2'),true);
+});
+
 test('Earth BBC airs in episode order',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&p.rotationGroup==='earth').slice(0,5);
  assert.deepEqual(shows.map(p=>catalog.videos[p.video].episode),[1,2,3,4,5]);
@@ -107,8 +118,8 @@ test('Earth BBC airs in episode order',()=>{
 test('one-off documentaries are all shown before the first one repeats',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto&&p.rotationGroup==='documentaries');
  const firstRepeat=shows.findIndex((p,i)=>shows.slice(0,i).some(x=>x.video===p.video));
- assert.ok(firstRepeat>=19);
- assert.equal(new Set(shows.slice(0,19).map(p=>p.video)).size,19);
+ assert.ok(firstRepeat>=18);
+ assert.equal(new Set(shows.slice(0,18).map(p=>p.video)).size,18);
 });
 
 test('new material is marked premiere only on first airing',()=>{

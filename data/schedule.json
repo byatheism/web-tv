@@ -1,7 +1,7 @@
 {
-  "version": 13,
-  "catalogVersion": 8,
-  "edition": "hourly-documentaries-with-webcams-20261007",
+  "version": 14,
+  "catalogVersion": 10,
+  "edition": "add-game-stories-20261008",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -222,6 +222,12 @@
         "type": "series",
         "value": "Земля BBC",
         "label": "Земля BBC"
+      },
+      {
+        "id": "games",
+        "type": "category",
+        "value": "Игровые истории",
+        "label": "Игровые истории"
       }
     ],
     "freezeDays": 3,

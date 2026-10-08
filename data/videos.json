@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "videos": {
     "civilisation-01": {
       "title": "Цивилизация - 1. На грани выживания",
@@ -541,7 +541,7 @@
         "videoId": "ZQ9uKxsArxw"
       },
       "author": "ShoobahDoobah",
-      "category": "Документальные фильмы"
+      "category": "Игровые истории"
     },
     "cam-utopia-top-wall": {
       "title": "Utopia Village - подводный риф, верхняя стена",
@@ -597,6 +597,50 @@
       "author": "Explore Nature for Kids",
       "category": "Веб-камеры",
       "live": true
+    },
+    "one-eyed-likho-adventure": {
+      "title": "Приключения на свою голову | One-Eyed Likho (Лихо одноглазое)",
+      "durationSeconds": 10705,
+      "source": {
+        "type": "youtube",
+        "videoId": "9o10FBKsZEQ"
+      },
+      "author": "Алексей Козлов",
+      "category": "Игровые истории"
+    },
+    "indika-religion-avantgarde": {
+      "title": "Религия, авангард и артхаус | INDIKA",
+      "durationSeconds": 10482,
+      "source": {
+        "type": "youtube",
+        "videoId": "_-72bxSD43Q"
+      },
+      "author": "Алексей Козлов",
+      "category": "Игровые истории"
+    },
+    "crime-scene-cleaner-01": {
+      "title": "Crime Scene Cleaner: Часть 1. Неправильное решение",
+      "durationSeconds": 3460,
+      "source": {
+        "type": "youtube",
+        "videoId": "6_ArGGxoP70"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "Crime Scene Cleaner",
+      "episode": 1
+    },
+    "crime-scene-cleaner-02": {
+      "title": "Crime Scene Cleaner: Часть 2. Испытание кровью",
+      "durationSeconds": 4355,
+      "source": {
+        "type": "youtube",
+        "videoId": "9NXCgPV2kvU"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "Crime Scene Cleaner",
+      "episode": 2
     }
   }
 }
