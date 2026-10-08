@@ -1,6 +1,6 @@
 import {Programme,BroadcastClock} from './schedule.js?v=0.5.0';
 import {$,time,date,el,duration} from './common.js?v=0.4.0';
-import {createMedia,loadYouTube} from './media.js?v=0.4.3';
+import {createMedia,loadYouTube} from './media.js?v=0.5.3';
 
 const clock=new BroadcastClock(),programme=new Programme(clock);
 const clockTime=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Minsk',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
@@ -169,14 +169,19 @@ function prepareNext(){
   try{media?.pause();}catch{}
   return prepareShow(next,0);
 }
-function activatePrepared(p){
-  if(!powered||!p||!media||prepared?.id!==p.id)return false;
-  const offset=Math.max(0,(clock.now()-p.startMs)/1000);
+function switchExisting(p){
+  if(!powered||!p||document.hidden||!media)return false;
+  const video=programme.video(p);
+  if(!media.canReuse?.(video)||!media.switchTo)return false;
+  const offset=video.live?0:Math.max(0,(clock.now()-p.startMs)/1000);
   const token=++generation;
-  if(!media.prepare(programme.video(p),offset,eventsFor(p,token))){
-    generation--;
-    return false;
-  }
+  // Cover the old frame before requesting a new one. When it starts playing,
+  // the existing onStateChange callback reveals it.
+  clearTimeout(breakRevealTimer);
+  setBroadcastFade(true,true);
+  setStartCover(true);
+  const ok=media.switchTo(video,offset,eventsFor(p,token));
+  if(!ok){generation--;return false;}
   loaded=p.id;
   prepared=null;
   starting=false;
@@ -184,16 +189,12 @@ function activatePrepared(p){
   resetFailure();
   lastProgress=clock.now();
   lastPosition=-1;
-  clearTimeout(breakRevealTimer);
-  setBroadcastFade(true,true);
-  setStartCover(true);
   sound();
-  try{media.play();return true;}catch{return false;}
+  return true;
 }
 async function start(p){
-  if(starting||!powered||!p)return;
-  if(activatePrepared(p))return;
-  if(media&&prepareShow(p,Math.max(0,(clock.now()-p.startMs)/1000))&&activatePrepared(p))return;
+  if(starting||!powered||!p||document.hidden)return;
+  if(switchExisting(p))return;
 
   clearMedia();
   loaded=p.id;
@@ -337,8 +338,16 @@ function tick(){
     return;
   }
   if(loaded!==p.id){
-    if(document.hidden)return;
-    if(!activatePrepared(p))start(p);
+    if(document.hidden){
+      // The schedule changes even in a hidden tab, but YouTube playback
+      // cannot be initiated until the player is visible. Keep the stale
+      // video covered; a visible tick will load the current show directly.
+      setBroadcastFade(true,true);
+      setStartCover(true);
+      return;
+    }
+    if(starting)clearMedia();
+    start(p);
     return;
   }
   if(failed){
