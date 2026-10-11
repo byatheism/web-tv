@@ -123,12 +123,24 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
 
   let fillerIndex=0;
   const stoneLast=new Map();
+  // Every third suitable intermission may use Stone Simulator. Preserve the
+  // cadence when a frozen programme is extended or regenerated.
+  const stoneEvery=Number.isInteger(r.stone?.everyNthSuitableGap)&&r.stone.everyNthSuitableGap>=2
+    ?r.stone.everyNthSuitableGap:3;
+  let suitableSinceStone=0;
   for(const p of orderedHistory){
     if(filler){
       const idx=filler.members.indexOf(p.video);
       if(idx>=0)fillerIndex=(idx+1)%filler.members.length;
     }
-    if(stones?.members.includes(p.video))stoneLast.set(p.video,p.startMs);
+    if(stones?.members.includes(p.video)){
+      stoneLast.set(p.video,p.startMs);
+      suitableSinceStone=0;
+    }else if(p.filler&&stones?.members.length){
+      const seconds=(p.endMs-p.startMs)/1000;
+      if(chooseStoneExcerpt(catalog,stones.members,seconds,stoneLast,p.startMs))
+        suitableSinceStone=Math.min(stoneEvery-1,suitableSinceStone+1);
+    }
   }
 
   const lastExplicit=orderedHistory.at(-1);
@@ -146,7 +158,9 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
     if(endMs-startMs<1000)return;
     const gapSeconds=(endMs-startMs)/1000;
     const stone=stones?chooseStoneExcerpt(catalog,stones.members,gapSeconds,stoneLast,startMs):null;
-    if(stone){
+    // Keep underwater nature cams the dominant filler, even if Stone Simulator
+    // can technically fill every short gap.
+    if(stone&&suitableSinceStone>=stoneEvery-1){
       const stamp=minskISO(startMs).slice(0,16).replace(/[-:T]/g,'');
       generated.push({
         id:`stone-${stamp}-${stone.video}`,
@@ -160,10 +174,12 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
         auto:true
       });
       stoneLast.set(stone.video,startMs);
+      suitableSinceStone=0;
       return;
     }
-    // The shortest available stone recording cannot cover this gap:
-    // continue to use the existing live cameras instead of looping a clip.
+    // Short and long breaks alike remain primarily underwater-camera slots.
+    // Only suitable non-stone breaks advance the intermission cadence.
+    if(stone)suitableSinceStone=Math.min(stoneEvery-1,suitableSinceStone+1);
     if(!filler)return;
     const video=filler.members[fillerIndex%filler.members.length];
     fillerIndex=(fillerIndex+1)%filler.members.length;
