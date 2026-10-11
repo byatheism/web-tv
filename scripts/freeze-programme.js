@@ -1,4 +1,4 @@
-// Rolling fixed programme for hourly documentaries and webcam fillers.
+// Rolling fixed programme for hourly shows, Stone Simulator excerpts and live-camera fillers.
 import fs from 'node:fs';
 import {validate} from '../assets/schedule.js';
 
