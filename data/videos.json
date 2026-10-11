@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "videos": {
     "civilisation-01": {
       "title": "Цивилизация - 1. На грани выживания",
@@ -653,6 +653,18 @@
       "category": "Stone Simulator",
       "series": "Stone Simulator",
       "episode": 1
+    },
+    "stone-FK_pxbFJyIQ": {
+      "title": "Stone Simulator",
+      "durationSeconds": 10149,
+      "source": {
+        "type": "youtube",
+        "videoId": "FK_pxbFJyIQ"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Stone Simulator",
+      "series": "Stone Simulator",
+      "episode": 2
     }
   }
 }
