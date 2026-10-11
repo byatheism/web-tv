@@ -1,0 +1,36 @@
+name: Temporary new Stone Simulator metadata
+on:
+  push:
+    paths:
+      - '.github/workflows/stone-new-video-probe.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q yt-dlp
+      - name: Read video and playlist
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          for label,url in [
+            ("NEW_VIDEO","https://www.youtube.com/watch?v=FK_pxbFJyIQ"),
+            ("PLAYLIST","https://www.youtube.com/playlist?list=PLCvU3DgR5rsE")
+          ]:
+            args=['yt-dlp','--flat-playlist','--dump-single-json','--no-warnings','--socket-timeout','20',url]
+            p=subprocess.run(args,text=True,capture_output=True,timeout=120)
+            if p.returncode:
+              print(label+'_ERROR '+p.stderr[-1400:])
+            else:
+              data=json.loads(p.stdout)
+              if label=="NEW_VIDEO":
+                print(label+'_JSON '+json.dumps({k:data.get(k) for k in ['id','title','duration','uploader','channel','live_status']},ensure_ascii=False))
+              else:
+                print(label+'_JSON '+json.dumps({'title':data.get('title'),'entries':[{'id':e.get('id'),'title':e.get('title'),'duration':e.get('duration')} for e in data.get('entries',[])]},ensure_ascii=False))
+          PY
