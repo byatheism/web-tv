@@ -1,0 +1,49 @@
+name: Sync Stone Simulator playlist
+
+on:
+  schedule:
+    - cron: '35 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stone-simulator-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install YouTube playlist reader
+        run: pip install -q yt-dlp
+      - name: Import new Stone Simulator recordings
+        run: node scripts/sync-stone-playlist.mjs
+      - name: Validate programme
+        run: |
+          npm test
+          npm run check
+      - name: Publish catalogue changes
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- data/videos.json)" ]; then
+            echo "Stone Simulator playlist has not changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/videos.json
+          git commit -m "Sync Stone Simulator playlist"
+          git pull --rebase
+          git push
