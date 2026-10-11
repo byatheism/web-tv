@@ -1,7 +1,7 @@
 {
-  "version": 14,
-  "catalogVersion": 10,
-  "edition": "add-game-stories-20261008",
+  "version": 15,
+  "catalogVersion": 11,
+  "edition": "stone-simulator-fillers-20261011",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -236,6 +236,13 @@
       "type": "category",
       "value": "Веб-камеры",
       "label": "Прямой эфир - веб-камера"
+    },
+    "stone": {
+      "id": "stone",
+      "type": "category",
+      "value": "Stone Simulator",
+      "label": "Stone Simulator",
+      "playlistId": "PLCvU3DgR5rsE"
     }
   }
 }

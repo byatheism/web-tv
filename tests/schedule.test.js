@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {validate,Programme,protectStarted,warnings,clone,BroadcastClock,generateRotation} from '../assets/schedule.js';
+import {validate,Programme,protectStarted,warnings,clone,BroadcastClock,generateRotation,chooseStoneExcerpt} from '../assets/schedule.js';
 
 const catalog=JSON.parse(fs.readFileSync(new URL('../data/videos.json',import.meta.url)));
 const schedule=JSON.parse(fs.readFileSync(new URL('../data/schedule.json',import.meta.url)));
@@ -11,8 +11,8 @@ const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
 test('catalogue contains documentary films, game stories and webcam fillers',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
- assert.equal(Object.keys(catalog.videos).length,51);
- for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific','one-eyed-likho-adventure','indika-religion-avantgarde','crime-scene-cleaner-01','crime-scene-cleaner-02']) assert.ok(catalog.videos[id],id);
+ assert.equal(Object.keys(catalog.videos).length,52);
+ for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific','one-eyed-likho-adventure','indika-religion-avantgarde','crime-scene-cleaner-01','crime-scene-cleaner-02','stone-xo3FZ0Fn68k']) assert.ok(catalog.videos[id],id);
 });
 
 
@@ -100,7 +100,11 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
    assert.equal(local.getUTCSeconds(),0);
  }
  for(const p of fillers){
-   assert.equal(catalog.videos[p.video].live,true);
+   if(p.rotationGroup==='stone'){
+     const v=catalog.videos[p.video];
+     assert.equal(v.category,'Stone Simulator');
+     assert.ok((p.offsetSeconds??0)+(p.endMs-p.startMs)/1000<=v.durationSeconds-3);
+   }else assert.equal(catalog.videos[p.video].live,true);
    const nextDoc=docs.find(d=>d.startMs===p.endMs);
    assert.ok(nextDoc,`filler ${p.id} must end exactly when a documentary starts`);
  }
@@ -108,7 +112,7 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
  assert.ok(beforeFirst);
  assert.equal(beforeFirst.video,'cam-utopia-top-wall');
  assert.ok(afterFirst);
- assert.equal(afterFirst.video,'cam-tropical-reef');
+ assert.equal(afterFirst.video,'stone-xo3FZ0Fn68k');
  assert.equal(afterFirst.end,'2026-10-07T15:00:00.000+03:00');
 });
 test('the two Crime Scene Cleaner parts enter the game rotation in order',()=>{
@@ -119,6 +123,24 @@ test('the two Crime Scene Cleaner parts enter the game rotation in order',()=>{
  assert.equal(catalog.videos['crime-scene-cleaner-01'].episode,1);
  assert.equal(catalog.videos['crime-scene-cleaner-02'].episode,2);
  assert.equal(shows.some(p=>p.video==='ashes-to-ashes-kcd2'),true);
+});
+
+test('Stone Simulator selects only videos longer than the gap and uses stable shared offsets',()=>{
+ const id='stone-xo3FZ0Fn68k',ids=[id];
+ assert.equal(chooseStoneExcerpt(catalog,ids,1500,new Map(),12345),null,'24-minute stone cannot fill a 25-minute gap');
+ assert.deepEqual(chooseStoneExcerpt(catalog,ids,600,new Map(),12345),{video:id,offsetSeconds:0});
+ const c=clone(catalog);
+ c.videos['stone-long']={title:'Long stone',durationSeconds:7200,source:{type:'youtube',videoId:'ZZZZZZZZZZZ'},category:'Stone Simulator'};
+ c.videos['stone-medium']={title:'Medium stone',durationSeconds:3500,source:{type:'youtube',videoId:'YYYYYYYYYYY'},category:'Stone Simulator'};
+ const members=[id,'stone-medium','stone-long'];
+ assert.equal(chooseStoneExcerpt(c,members,3600,new Map(),999).video,'stone-long');
+ const long=chooseStoneExcerpt(c,members,1200,new Map([['stone-medium',1000]]),999);
+ assert.equal(long.video,'stone-long','least recently aired fitting video wins');
+ assert.ok(long.offsetSeconds>=0&&long.offsetSeconds<=7200-1200-3);
+ assert.deepEqual(long,chooseStoneExcerpt(c,members,1200,new Map([['stone-medium',1000]]),999));
+ const other=chooseStoneExcerpt(c,members,1200,new Map([['stone-medium',1000]]),1999);
+ assert.notEqual(other.offsetSeconds,long.offsetSeconds,'different broadcasts select different excerpts');
+ assert.equal(chooseStoneExcerpt(c,members,8000,new Map(),999),null);
 });
 
 test('Earth BBC airs in episode order',()=>{
@@ -147,7 +169,7 @@ test('repeat protection applies to documentaries while webcam fillers rotate fre
    if(last.has(p.video))assert.ok(p.startMs-last.get(p.video)>=8*3600000,`${p.video} repeated too soon`);
    last.set(p.video,p.startMs);
  }
- const cams=validate(catalog,schedule,rotationNow).programs.filter(p=>p.filler).slice(0,5).map(p=>p.video);
+ const cams=validate(catalog,schedule,rotationNow).programs.filter(p=>p.filler&&p.rotationGroup==='webcams').slice(0,5).map(p=>p.video);
  assert.equal(new Set(cams).size,5);
 });
 
