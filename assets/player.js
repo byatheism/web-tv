@@ -1,4 +1,4 @@
-import {Programme,BroadcastClock} from './schedule.js?v=0.5.4';
+import {Programme,BroadcastClock} from './schedule.js?v=0.5.5';
 import {$,time,date,el,duration} from './common.js?v=0.4.0';
 import {createMedia,loadYouTube} from './media.js?v=0.5.3';
 
