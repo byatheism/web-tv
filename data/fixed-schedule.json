@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-10T21:20:29.541Z",
-  "freezeUntil": "2026-10-13T21:20:29.541Z",
+  "generatedAt": "2026-10-11T09:30:16.341Z",
+  "freezeUntil": "2026-10-14T09:30:16.341Z",
   "catalogVersion": 10,
   "scheduleVersion": 14,
   "sourceEdition": "add-game-stories-20261008",
@@ -2226,6 +2226,196 @@
       "video": "earth-bbc-05",
       "start": "2026-10-14T00:00:00.000+03:00",
       "end": "2026-10-14T00:52:15.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140052-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-10-14T00:52:15.000+03:00",
+      "end": "2026-10-14T01:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610140100-games-crime-scene-cleaner-02",
+      "video": "crime-scene-cleaner-02",
+      "start": "2026-10-14T01:00:00.000+03:00",
+      "end": "2026-10-14T02:12:35.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140212-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-10-14T02:12:35.000+03:00",
+      "end": "2026-10-14T03:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610140300-civilisation-civilisation-06",
+      "video": "civilisation-06",
+      "start": "2026-10-14T03:00:00.000+03:00",
+      "end": "2026-10-14T03:50:06.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140350-cam-tropical-reef",
+      "video": "cam-tropical-reef",
+      "start": "2026-10-14T03:50:06.000+03:00",
+      "end": "2026-10-14T04:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610140400-voyages-voyages-discovery-03",
+      "video": "voyages-discovery-03",
+      "start": "2026-10-14T04:00:00.000+03:00",
+      "end": "2026-10-14T04:59:00.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140459-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-10-14T04:59:00.000+03:00",
+      "end": "2026-10-14T05:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610140500-documentaries-bbc-death-doula",
+      "video": "bbc-death-doula",
+      "start": "2026-10-14T05:00:00.000+03:00",
+      "end": "2026-10-14T06:11:11.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140611-cam-utopia-back-channel",
+      "video": "cam-utopia-back-channel",
+      "start": "2026-10-14T06:11:11.000+03:00",
+      "end": "2026-10-14T07:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610140700-earth-earth-bbc-01",
+      "video": "earth-bbc-01",
+      "start": "2026-10-14T07:00:00.000+03:00",
+      "end": "2026-10-14T07:52:06.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140752-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-10-14T07:52:06.000+03:00",
+      "end": "2026-10-14T08:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610140800-games-ashes-to-ashes-kcd2",
+      "video": "ashes-to-ashes-kcd2",
+      "start": "2026-10-14T08:00:00.000+03:00",
+      "end": "2026-10-14T08:20:57.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140820-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-10-14T08:20:57.000+03:00",
+      "end": "2026-10-14T09:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610140900-civilisation-civilisation-07",
+      "video": "civilisation-07",
+      "start": "2026-10-14T09:00:00.000+03:00",
+      "end": "2026-10-14T09:48:58.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "filler-202610140948-cam-tropical-reef",
+      "video": "cam-tropical-reef",
+      "start": "2026-10-14T09:48:58.000+03:00",
+      "end": "2026-10-14T10:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610141000-voyages-voyages-discovery-04",
+      "video": "voyages-discovery-04",
+      "start": "2026-10-14T10:00:00.000+03:00",
+      "end": "2026-10-14T10:59:17.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202610141059-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-10-14T10:59:17.000+03:00",
+      "end": "2026-10-14T11:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610141100-documentaries-bbc-returning-gods",
+      "video": "bbc-returning-gods",
+      "start": "2026-10-14T11:00:00.000+03:00",
+      "end": "2026-10-14T11:29:00.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202610141129-cam-utopia-back-channel",
+      "video": "cam-utopia-back-channel",
+      "start": "2026-10-14T11:29:00.000+03:00",
+      "end": "2026-10-14T12:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610141200-earth-earth-bbc-02",
+      "video": "earth-bbc-02",
+      "start": "2026-10-14T12:00:00.000+03:00",
+      "end": "2026-10-14T12:52:13.000+03:00",
       "theme": "Земля BBC",
       "rotationGroup": "earth",
       "auto": true
