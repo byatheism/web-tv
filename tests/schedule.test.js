@@ -112,8 +112,21 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
  assert.ok(beforeFirst);
  assert.equal(beforeFirst.video,'cam-utopia-top-wall');
  assert.ok(afterFirst);
- assert.equal(afterFirst.video,'stone-xo3FZ0Fn68k');
+ assert.ok(['stone','webcams'].includes(afterFirst.rotationGroup));
  assert.equal(afterFirst.end,'2026-10-07T15:00:00.000+03:00');
+ const suitable=fillers.filter(p=>chooseStoneExcerpt(
+   catalog,['stone-xo3FZ0Fn68k'],(p.endMs-p.startMs)/1000,new Map(),p.startMs
+ ));
+ // At least two underwater-camera intermissions per Stone Simulator showing,
+ // even when the stone is long enough to fit every short break.
+ for(let i=0;i+2<suitable.length;i++){
+   const sample=suitable.slice(i,i+3);
+   assert.ok(sample.filter(p=>p.rotationGroup==='stone').length<=1,
+     'Stone Simulator cannot occupy more than one of three suitable breaks');
+ }
+ assert.ok(fillers.some(p=>p.rotationGroup==='stone'));
+ assert.ok(fillers.filter(p=>p.rotationGroup==='webcams').length>
+    fillers.filter(p=>p.rotationGroup==='stone').length);
 });
 test('the two Crime Scene Cleaner parts enter the game rotation in order',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.rotationGroup==='games');
