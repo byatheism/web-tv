@@ -1,4 +1,4 @@
-import {Programme,BroadcastClock} from './schedule.js?v=0.5.0';
+import {Programme,BroadcastClock} from './schedule.js?v=0.5.4';
 import {$,time,date,el,duration} from './common.js?v=0.4.0';
 import {createMedia,loadYouTube} from './media.js?v=0.5.3';
 
@@ -147,6 +147,10 @@ function eventsFor(p,token){
     blocked(){if(valid())autoplayBlocked();}
   };
 }
+function playbackOffset(p,now=clock.now()){
+  if(!p||programme.video(p)?.live)return 0;
+  return (p.offsetSeconds||0)+Math.max(0,(now-p.startMs)/1000);
+}
 function prepareShow(p,offset=0){
   if(!powered||!p||!media||!media.canReuse?.(programme.video(p)))return false;
   const token=++generation;
@@ -167,13 +171,13 @@ function prepareNext(){
   if(!next)return false;
   if(prepared?.id===next.id&&media)return true;
   try{media?.pause();}catch{}
-  return prepareShow(next,0);
+  return prepareShow(next,playbackOffset(next,next.startMs));
 }
 function switchExisting(p){
   if(!powered||!p||document.hidden||!media)return false;
   const video=programme.video(p);
   if(!media.canReuse?.(video)||!media.switchTo)return false;
-  const offset=video.live?0:Math.max(0,(clock.now()-p.startMs)/1000);
+  const offset=playbackOffset(p);
   const token=++generation;
   // Cover the old frame before requesting a new one. When it starts playing,
   // the existing onStateChange callback reveals it.
@@ -207,7 +211,7 @@ async function start(p){
   setStartCover(true);
   const token=++generation;
   try{
-    const result=await createMedia($('player'),programme.video(p),Math.max(0,(clock.now()-p.startMs)/1000),eventsFor(p,token));
+    const result=await createMedia($('player'),programme.video(p),playbackOffset(p),eventsFor(p,token));
     if(token!==generation){result?.destroy();return;}
     if(result)media=result;
   }catch{
@@ -345,7 +349,7 @@ function tick(){
       if(prepared?.id!==p.id){
         try{media?.pause();}catch{}
         if(media&&!starting){
-          const offset=programme.video(p).live?0:Math.max(0,(clock.now()-p.startMs)/1000);
+          const offset=playbackOffset(p);
           prepareShow(p,offset);
         }
       }
