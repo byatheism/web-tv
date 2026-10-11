@@ -1,7 +1,7 @@
 {
-  "version": 15,
+  "version": 16,
   "catalogVersion": 11,
-  "edition": "stone-simulator-fillers-20261011",
+  "edition": "underwater-cameras-priority-20261011",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -242,7 +242,8 @@
       "type": "category",
       "value": "Stone Simulator",
       "label": "Stone Simulator",
-      "playlistId": "PLCvU3DgR5rsE"
+      "playlistId": "PLCvU3DgR5rsE",
+      "everyNthSuitableGap": 3
     }
   }
 }
