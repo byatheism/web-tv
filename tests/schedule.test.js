@@ -134,11 +134,11 @@ test('Stone Simulator selects only videos longer than the gap and uses stable sh
  c.videos['stone-medium']={title:'Medium stone',durationSeconds:3500,source:{type:'youtube',videoId:'YYYYYYYYYYY'},category:'Stone Simulator'};
  const members=[id,'stone-medium','stone-long'];
  assert.equal(chooseStoneExcerpt(c,members,3600,new Map(),999).video,'stone-long');
- const long=chooseStoneExcerpt(c,members,1200,new Map([['stone-medium',1000]]),999);
+ const long=chooseStoneExcerpt(c,members,1200,new Map([[id,2000],['stone-medium',1000]]),999);
  assert.equal(long.video,'stone-long','least recently aired fitting video wins');
  assert.ok(long.offsetSeconds>=0&&long.offsetSeconds<=7200-1200-3);
- assert.deepEqual(long,chooseStoneExcerpt(c,members,1200,new Map([['stone-medium',1000]]),999));
- const other=chooseStoneExcerpt(c,members,1200,new Map([['stone-medium',1000]]),1999);
+ assert.deepEqual(long,chooseStoneExcerpt(c,members,1200,new Map([[id,2000],['stone-medium',1000]]),999));
+ const other=chooseStoneExcerpt(c,members,1200,new Map([[id,2000],['stone-medium',1000]]),1999);
  assert.notEqual(other.offsetSeconds,long.offsetSeconds,'different broadcasts select different excerpts');
  assert.equal(chooseStoneExcerpt(c,members,8000,new Map(),999),null);
 });
