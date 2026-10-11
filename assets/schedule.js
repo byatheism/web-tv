@@ -32,6 +32,27 @@ function videoGroupMembers(catalog, group){
   if(!ids.length)throw Error('Пустая группа ротации: '+group.id);
   return ids;
 }
+// Pick a complete Stone Simulator excerpt for a fixed broadcast gap. All clients
+// receive the same deterministic offset, even after a reload or schedule freeze.
+export function chooseStoneExcerpt(catalog, members, gapSeconds, lastUsed=new Map(), startMs=0){
+  const safety=3; // leave a small margin so the source never ends before the slot
+  const fitting=members.map((id,index)=>({id,index,video:catalog.videos[id]}))
+    .filter(x=>x.video&&!x.video.live&&x.video.durationSeconds>=gapSeconds+safety);
+  if(!fitting.length)return null;
+  fitting.sort((a,b)=>(lastUsed.get(a.id)??-Infinity)-(lastUsed.get(b.id)??-Infinity)||a.index-b.index);
+  const {id,video}=fitting[0];
+  const maxOffset=Math.max(0,Math.floor(video.durationSeconds-gapSeconds-safety));
+  let offsetSeconds=0;
+  if(video.durationSeconds>1800&&maxOffset>0){
+    // Stable pseudo-randomness: no per-viewer Math.random() drift.
+    let hash=2166136261;
+    for(const char of id+':'+startMs){
+      hash=Math.imul(hash^char.charCodeAt(0),16777619)>>>0;
+    }
+    offsetSeconds=hash%(maxOffset+1);
+  }
+  return {video:id,offsetSeconds};
+}
 function stripRuntime(p){
   const {startMs,endMs,...rest}=p;
   return rest;
@@ -71,6 +92,12 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
     if(!g||!['series','category','ids'].includes(g.type))throw Error('Некорректная группа заполнения эфира');
     filler={...g,members:videoGroupMembers(catalog,g)};
   }
+  let stones=null;
+  if(r.stone){
+    const g=r.stone;
+    if(!g||!['series','category','ids'].includes(g.type))throw Error('Некорректная группа Stone Simulator');
+    stones={...g,members:videoGroupMembers(catalog,g)};
+  }
 
   const videoLast=new Map(), groupLast=new Map(groups.map(g=>[g.id,-Infinity])), ever=new Set();
   const groupNext=new Map();
@@ -95,11 +122,13 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
   }
 
   let fillerIndex=0;
-  if(filler){
-    for(const p of orderedHistory){
+  const stoneLast=new Map();
+  for(const p of orderedHistory){
+    if(filler){
       const idx=filler.members.indexOf(p.video);
       if(idx>=0)fillerIndex=(idx+1)%filler.members.length;
     }
+    if(stones?.members.includes(p.video))stoneLast.set(p.video,p.startMs);
   }
 
   const lastExplicit=orderedHistory.at(-1);
@@ -114,7 +143,28 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
   const generated=[], minRepeatMs=minRepeatHours*3600000;
 
   function addFiller(startMs,endMs){
-    if(!filler||endMs-startMs<1000)return;
+    if(endMs-startMs<1000)return;
+    const gapSeconds=(endMs-startMs)/1000;
+    const stone=stones?chooseStoneExcerpt(catalog,stones.members,gapSeconds,stoneLast,startMs):null;
+    if(stone){
+      const stamp=minskISO(startMs).slice(0,16).replace(/[-:T]/g,'');
+      generated.push({
+        id:`stone-${stamp}-${stone.video}`,
+        video:stone.video,
+        start:minskISO(startMs),
+        end:minskISO(endMs),
+        offsetSeconds:stone.offsetSeconds,
+        theme:'Stone Simulator',
+        rotationGroup:stones.id||'stone',
+        filler:true,
+        auto:true
+      });
+      stoneLast.set(stone.video,startMs);
+      return;
+    }
+    // The shortest available stone recording cannot cover this gap:
+    // continue to use the existing live cameras instead of looping a clip.
+    if(!filler)return;
     const video=filler.members[fillerIndex%filler.members.length];
     fillerIndex=(fillerIndex+1)%filler.members.length;
     const stamp=minskISO(startMs).slice(0,16).replace(/[-:T]/g,'');
@@ -199,6 +249,8 @@ export function validate(catalog, schedule, now=Date.now(), fixed=null) {
     const startMs=Date.parse(p.start),endMs=Date.parse(p.end),video=catalog.videos[p.video];
     if(typeof p.id!=='string'||!p.id||ids.has(p.id)||!video||!zoned.test(p.start)||!zoned.test(p.end)||!Number.isFinite(startMs)||!Number.isFinite(endMs)||endMs<=startMs||(!video.live&&(endMs-startMs)/1000>video.durationSeconds+1))throw Error('Некорректный показ: '+p.id);
     if(p.premiere!==undefined&&typeof p.premiere!=='boolean')throw Error('Некорректная отметка премьеры: '+p.id);
+    const offset=p.offsetSeconds??0;
+    if(!Number.isInteger(offset)||offset<0||(!video.live&&offset+(endMs-startMs)/1000>video.durationSeconds+0.01))throw Error('Неверный отрезок видео: '+p.id);
     ids.add(p.id);
     return {...p,startMs,endMs};
   };
