@@ -1,6 +1,10 @@
 name: Sync Stone Simulator playlist
 
 on:
+  push:
+    paths:
+      - '.github/workflows/sync-stone-playlist.yml'
+      - 'scripts/sync-stone-playlist.mjs'
   schedule:
     - cron: '35 9 * * *'
   workflow_dispatch:
