@@ -1,0 +1,50 @@
+name: Temporary Stone Simulator inventory
+
+on:
+  push:
+    paths:
+      - '.github/workflows/stone-inventory-temp.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save youtubei.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q yt-dlp
+      - name: Read playlist and bumper metadata
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {Innertube} from 'youtubei.js';
+          const yt=await Innertube.create({lang:'ru',location:'BY'});
+          const id='xo3FZ0Fn68k';
+          for(const n of [id]){
+            const out={id:n};
+            try{
+              const info=await yt.getBasicInfo(n);
+              const b=info.basic_info||{};
+              out.title=b.title||null;out.duration=b.duration||null;out.channel=b.channel?.name||b.author||null;
+            }catch(e){out.error=String(e)}
+            console.log('BUMPER '+JSON.stringify(out));
+          }
+          try{
+            let p=await yt.getPlaylist('PLCvU3DgR5rsE');
+            let page=0;
+            while(p&&page++<30){
+              console.log('PLAYLIST_PAGE '+JSON.stringify({page,info:p.info||{},items:p.videos?.map(x=>({id:x.id,title:x.title?.text||String(x.title||''),duration:x.duration?.seconds??x.duration?.text??x.duration??null,author:x.author?.name||null}))||[]}));
+              if(!p.has_continuation)break;
+              p=await p.getContinuation();
+            }
+          }catch(e){console.log('PLAYLIST_ERROR '+String(e))}
+          NODE
+          yt-dlp --flat-playlist --dump-single-json --no-warnings 'https://www.youtube.com/playlist?list=PLCvU3DgR5rsE' | python -c "import json,sys;d=json.load(sys.stdin);print('YTDLP_LIST '+json.dumps({'title':d.get('title'),'entries':[{'id':x.get('id'),'title':x.get('title'),'duration':x.get('duration'),'live_status':x.get('live_status')} for x in d.get('entries',[])]},ensure_ascii=False))" || true
