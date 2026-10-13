@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {validate,Programme,protectStarted,warnings,clone,BroadcastClock,generateRotation,chooseStoneExcerpt} from '../assets/schedule.js';
+import {mergeStonePlaylist} from '../scripts/stone-playlist.js';
 
 const catalog=JSON.parse(fs.readFileSync(new URL('../data/videos.json',import.meta.url)));
 const schedule=JSON.parse(fs.readFileSync(new URL('../data/schedule.json',import.meta.url)));
@@ -11,7 +12,7 @@ const rotationNow=Date.parse('2026-10-07T12:03:00+03:00');
 
 test('catalogue contains documentary films, game stories and webcam fillers',()=>{
  assert.equal(Object.values(catalog.videos).some(v=>v.category==='Музыка'),false);
- assert.equal(Object.keys(catalog.videos).length,53);
+ assert.ok(Object.keys(catalog.videos).length>=53,'New playlist uploads may increase catalogue size');
  for(const id of ['bbc-black-death','bbc-changing-planet','bbc-space-brian-cox','bbc-wonderful-seasons','bbc-dinosaur-extinction','bbc-sun','bbc-largest-dinosaur','bbc-death-doula','bbc-returning-gods','bbc-sea-dragon','bbc-birds-of-paradise','bbc-egg','bbc-pompeii','bbc-911','bbc-tutankhamun','natgeo-earth-biography','natgeo-edge-universe','earth-bbc-01','earth-bbc-02','earth-bbc-03','earth-bbc-04','earth-bbc-05','loneliness-in-space','ashes-to-ashes-kcd2','cam-utopia-top-wall','cam-tropical-reef','cam-utopia-sandy-channel','cam-utopia-back-channel','cam-aquarium-pacific','one-eyed-likho-adventure','indika-religion-avantgarde','crime-scene-cleaner-01','crime-scene-cleaner-02','stone-xo3FZ0Fn68k','stone-FK_pxbFJyIQ']) assert.ok(catalog.videos[id],id);
 });
 
@@ -136,6 +137,26 @@ test('the two Crime Scene Cleaner parts enter the game rotation in order',()=>{
  assert.equal(catalog.videos['crime-scene-cleaner-01'].episode,1);
  assert.equal(catalog.videos['crime-scene-cleaner-02'].episode,2);
  assert.equal(shows.some(p=>p.video==='ashes-to-ashes-kcd2'),true);
+});
+
+test('Stone Simulator playlist sync preserves stable numbering on YouTube reordering',()=>{
+ const c=clone(catalog);
+ const first='xo3FZ0Fn68k',second='FK_pxbFJyIQ';
+ const reordered=[
+   {id:second,title:c.videos['stone-'+second].title,duration:c.videos['stone-'+second].durationSeconds},
+   {id:first,title:c.videos['stone-'+first].title,duration:c.videos['stone-'+first].durationSeconds}
+ ];
+ const originalVersion=c.version;
+ const result=mergeStonePlaylist(c,reordered);
+ assert.equal(result.changed,0,'Changing playlist order must not rewrite existing entries');
+ assert.equal(c.videos['stone-'+first].episode,1);
+ assert.equal(c.videos['stone-'+second].episode,2);
+ assert.equal(c.version,originalVersion);
+ const third={id:'MMMMMMMMMMM',title:'Stone Simulator new recording',duration:3660};
+ const added=mergeStonePlaylist(c,[third,...reordered]);
+ assert.equal(added.changed,1);
+ assert.equal(c.videos['stone-'+third.id].episode,3);
+ assert.equal(mergeStonePlaylist(c,[...reordered,third]).changed,0);
 });
 
 test('Stone Simulator selects only videos longer than the gap and uses stable shared offsets',()=>{
