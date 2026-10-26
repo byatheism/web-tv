@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-25T21:29:02.819Z",
-  "freezeUntil": "2026-10-28T21:29:02.819Z",
+  "generatedAt": "2026-10-26T21:35:21.815Z",
+  "freezeUntil": "2026-10-29T21:35:21.815Z",
   "catalogVersion": 12,
   "scheduleVersion": 16,
   "sourceEdition": "underwater-cameras-priority-20261011",
@@ -7443,6 +7443,392 @@
       "video": "bbc-largest-dinosaur",
       "start": "2026-10-29T00:00:00.000+03:00",
       "end": "2026-10-29T00:52:38.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202610290052-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-10-29T00:52:38.000+03:00",
+      "end": "2026-10-29T01:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610290100-earth-earth-bbc-04",
+      "video": "earth-bbc-04",
+      "start": "2026-10-29T01:00:00.000+03:00",
+      "end": "2026-10-29T01:52:11.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202610290152-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-10-29T01:52:11.000+03:00",
+      "end": "2026-10-29T02:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610290200-games-crime-scene-cleaner-01",
+      "video": "crime-scene-cleaner-01",
+      "start": "2026-10-29T02:00:00.000+03:00",
+      "end": "2026-10-29T02:57:40.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "stone-202610290257-stone-xo3FZ0Fn68k",
+      "video": "stone-xo3FZ0Fn68k",
+      "start": "2026-10-29T02:57:40.000+03:00",
+      "end": "2026-10-29T03:00:00.000+03:00",
+      "offsetSeconds": 0,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610290300-civilisation-civilisation-08",
+      "video": "civilisation-08",
+      "start": "2026-10-29T03:00:00.000+03:00",
+      "end": "2026-10-29T03:49:20.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "filler-202610290349-cam-tropical-reef",
+      "video": "cam-tropical-reef",
+      "start": "2026-10-29T03:49:20.000+03:00",
+      "end": "2026-10-29T04:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610290400-voyages-voyages-discovery-02",
+      "video": "voyages-discovery-02",
+      "start": "2026-10-29T04:00:00.000+03:00",
+      "end": "2026-10-29T04:59:00.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202610290459-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-10-29T04:59:00.000+03:00",
+      "end": "2026-10-29T05:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610290500-documentaries-bbc-death-doula",
+      "video": "bbc-death-doula",
+      "start": "2026-10-29T05:00:00.000+03:00",
+      "end": "2026-10-29T06:11:11.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "stone-202610290611-stone-FK_pxbFJyIQ",
+      "video": "stone-FK_pxbFJyIQ",
+      "start": "2026-10-29T06:11:11.000+03:00",
+      "end": "2026-10-29T07:00:00.000+03:00",
+      "offsetSeconds": 4245,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610290700-earth-earth-bbc-05",
+      "video": "earth-bbc-05",
+      "start": "2026-10-29T07:00:00.000+03:00",
+      "end": "2026-10-29T07:52:15.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202610290752-cam-utopia-back-channel",
+      "video": "cam-utopia-back-channel",
+      "start": "2026-10-29T07:52:15.000+03:00",
+      "end": "2026-10-29T08:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610290800-games-crime-scene-cleaner-02",
+      "video": "crime-scene-cleaner-02",
+      "start": "2026-10-29T08:00:00.000+03:00",
+      "end": "2026-10-29T09:12:35.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "filler-202610290912-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-10-29T09:12:35.000+03:00",
+      "end": "2026-10-29T10:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291000-civilisation-civilisation-09",
+      "video": "civilisation-09",
+      "start": "2026-10-29T10:00:00.000+03:00",
+      "end": "2026-10-29T10:50:01.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "stone-202610291050-stone-xo3FZ0Fn68k",
+      "video": "stone-xo3FZ0Fn68k",
+      "start": "2026-10-29T10:50:01.000+03:00",
+      "end": "2026-10-29T11:00:00.000+03:00",
+      "offsetSeconds": 0,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291100-voyages-voyages-discovery-03",
+      "video": "voyages-discovery-03",
+      "start": "2026-10-29T11:00:00.000+03:00",
+      "end": "2026-10-29T11:59:00.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202610291159-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-10-29T11:59:00.000+03:00",
+      "end": "2026-10-29T12:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291200-documentaries-bbc-returning-gods",
+      "video": "bbc-returning-gods",
+      "start": "2026-10-29T12:00:00.000+03:00",
+      "end": "2026-10-29T12:29:00.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202610291229-cam-tropical-reef",
+      "video": "cam-tropical-reef",
+      "start": "2026-10-29T12:29:00.000+03:00",
+      "end": "2026-10-29T13:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291300-earth-earth-bbc-01",
+      "video": "earth-bbc-01",
+      "start": "2026-10-29T13:00:00.000+03:00",
+      "end": "2026-10-29T13:52:06.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "stone-202610291352-stone-FK_pxbFJyIQ",
+      "video": "stone-FK_pxbFJyIQ",
+      "start": "2026-10-29T13:52:06.000+03:00",
+      "end": "2026-10-29T14:00:00.000+03:00",
+      "offsetSeconds": 7966,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291400-games-ashes-to-ashes-kcd2",
+      "video": "ashes-to-ashes-kcd2",
+      "start": "2026-10-29T14:00:00.000+03:00",
+      "end": "2026-10-29T14:20:57.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "filler-202610291420-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-10-29T14:20:57.000+03:00",
+      "end": "2026-10-29T15:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291500-civilisation-civilisation-10",
+      "video": "civilisation-10",
+      "start": "2026-10-29T15:00:00.000+03:00",
+      "end": "2026-10-29T15:49:01.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "filler-202610291549-cam-utopia-back-channel",
+      "video": "cam-utopia-back-channel",
+      "start": "2026-10-29T15:49:01.000+03:00",
+      "end": "2026-10-29T16:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291600-voyages-voyages-discovery-04",
+      "video": "voyages-discovery-04",
+      "start": "2026-10-29T16:00:00.000+03:00",
+      "end": "2026-10-29T16:59:17.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "stone-202610291659-stone-xo3FZ0Fn68k",
+      "video": "stone-xo3FZ0Fn68k",
+      "start": "2026-10-29T16:59:17.000+03:00",
+      "end": "2026-10-29T17:00:00.000+03:00",
+      "offsetSeconds": 0,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291700-documentaries-bbc-sea-dragon",
+      "video": "bbc-sea-dragon",
+      "start": "2026-10-29T17:00:00.000+03:00",
+      "end": "2026-10-29T17:52:08.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202610291752-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-10-29T17:52:08.000+03:00",
+      "end": "2026-10-29T18:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291800-earth-earth-bbc-02",
+      "video": "earth-bbc-02",
+      "start": "2026-10-29T18:00:00.000+03:00",
+      "end": "2026-10-29T18:52:13.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202610291852-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-10-29T18:52:13.000+03:00",
+      "end": "2026-10-29T19:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610291900-games-one-eyed-likho-adventure",
+      "video": "one-eyed-likho-adventure",
+      "start": "2026-10-29T19:00:00.000+03:00",
+      "end": "2026-10-29T21:58:25.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "stone-202610292158-stone-FK_pxbFJyIQ",
+      "video": "stone-FK_pxbFJyIQ",
+      "start": "2026-10-29T21:58:25.000+03:00",
+      "end": "2026-10-29T22:00:00.000+03:00",
+      "offsetSeconds": 2037,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610292200-civilisation-civilisation-11",
+      "video": "civilisation-11",
+      "start": "2026-10-29T22:00:00.000+03:00",
+      "end": "2026-10-29T22:49:46.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "filler-202610292249-cam-tropical-reef",
+      "video": "cam-tropical-reef",
+      "start": "2026-10-29T22:49:46.000+03:00",
+      "end": "2026-10-29T23:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610292300-voyages-voyages-discovery-05",
+      "video": "voyages-discovery-05",
+      "start": "2026-10-29T23:00:00.000+03:00",
+      "end": "2026-10-29T23:58:01.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202610292358-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-10-29T23:58:01.000+03:00",
+      "end": "2026-10-30T00:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202610300000-documentaries-bbc-birds-of-paradise",
+      "video": "bbc-birds-of-paradise",
+      "start": "2026-10-30T00:00:00.000+03:00",
+      "end": "2026-10-30T00:51:34.000+03:00",
       "theme": "Документальный фильм",
       "rotationGroup": "documentaries",
       "auto": true
