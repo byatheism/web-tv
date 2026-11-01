@@ -1,0 +1,44 @@
+name: Temporary DOC TV importer smoke test
+on:
+  push:
+    paths:
+      - '.github/workflows/doc-tv-import-smoke-temp.yml'
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install same dependencies as admin importer
+        run: |
+          python -m pip install -q yt-dlp
+          npm install --no-save --no-package-lock --ignore-scripts puppeteer-core@24
+      - name: Verify YouTube metadata retrieval and refuse duplicate
+        shell: bash
+        env:
+          DOC_SOURCE: 'https://www.youtube.com/watch?v=9o10FBKsZEQ'
+          DOC_KIND: video
+          DOC_MEDIA_TYPE: game
+        run: |
+          set +e
+          node scripts/add-video.mjs > /tmp/import-test.log 2>&1
+          code=$?
+          set -e
+          cat /tmp/import-test.log
+          if [ "$code" -eq 0 ]; then
+            echo "::error::Existing video incorrectly accepted as new"
+            exit 1
+          fi
+          if ! grep -q 'Все указанные ролики уже есть в каталоге' /tmp/import-test.log; then
+            echo "::error::Importer did not retrieve metadata before duplicate check"
+            exit 1
+          fi
+          echo 'SUCCESS: Metadata retrieved and duplicate safely rejected.'
