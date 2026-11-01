@@ -55,7 +55,7 @@ test('admin keeps stone video in intermissions and marks webcams live',()=>{
  const cam=fresh();
  addVideosToCatalog(cam,[{id:'GGGGGGGGGGG',title:'Камера',duration:0}],{kind:'video',mediaType:'webcam'});
  assert.equal(cam.videos['cam-GGGGGGGGGGG'].live,true);
- assert.equal(cam.videos['cam-GGGGGGGGGG'].durationSeconds,86400);
+ assert.equal(cam.videos['cam-GGGGGGGGGGG'].durationSeconds,86400);
 });
 
 test('admin blocks duplicates, invalid metadata and wrong categories without changing the original',()=>{
