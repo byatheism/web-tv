@@ -93,7 +93,7 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
  assert.ok(docs.length>20);
  assert.ok(fillers.length>10);
  assert.equal(docs[0].start,'2026-10-07T14:00:00.000+03:00');
- assert.ok(['documentaries','earth','civilisation','voyages','games'].every(g=>docs.slice(0,30).some(p=>p.rotationGroup===g)));
+ assert.ok(['documentaries','earth','civilisation','voyages','games','god-of-war'].every(g=>docs.slice(0,30).some(p=>p.rotationGroup===g)));
  for(let i=1;i<docs.length;i++)assert.notEqual(docs[i-1].rotationGroup,docs[i].rotationGroup);
  for(const p of docs){
    const local=new Date(p.startMs+3*3600000);
@@ -129,6 +129,19 @@ test('documentaries start only on the hour and webcam fillers cover the gaps',()
  assert.ok(fillers.filter(p=>p.rotationGroup==='webcams').length>
     fillers.filter(p=>p.rotationGroup==='stone').length);
 });
+test('God of War plays six episodes in order and only in its own group',()=>{
+ const ids=['god-of-war-01','god-of-war-02','god-of-war-03','god-of-war-04','god-of-war-05','god-of-war-06'];
+ assert.deepEqual(ids.map(id=>catalog.videos[id]?.episode),[1,2,3,4,5,6]);
+ assert.ok(ids.every(id=>catalog.videos[id].series==='God of War'));
+ const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.auto);
+ const god=shows.filter(p=>p.rotationGroup==='god-of-war');
+ assert.ok(god.length>=6,'All six episodes must be scheduled');
+ assert.deepEqual(god.slice(0,6).map(p=>p.video),ids);
+ assert.ok(god.slice(0,6).every(p=>p.premiere===true));
+ assert.equal(shows.filter(p=>p.rotationGroup==='games'&&ids.includes(p.video)).length,0,
+   'God of War must not also enter the general games rotation');
+});
+
 test('the two Crime Scene Cleaner parts enter the game rotation in order',()=>{
  const shows=validate(catalog,schedule,rotationNow).programs.filter(p=>p.rotationGroup==='games');
  const first=shows.findIndex(p=>p.video==='crime-scene-cleaner-01');

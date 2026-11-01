@@ -1,7 +1,7 @@
 {
-  "version": 16,
-  "catalogVersion": 11,
-  "edition": "underwater-cameras-priority-20261011",
+  "version": 17,
+  "catalogVersion": 13,
+  "edition": "god-of-war-series-20261101",
   "programs": [
     {
       "id": "civilisation-20261006-01",
@@ -228,6 +228,12 @@
         "type": "category",
         "value": "Игровые истории",
         "label": "Игровые истории"
+      },
+      {
+        "id": "god-of-war",
+        "type": "series",
+        "value": "God of War",
+        "label": "God of War"
       }
     ],
     "freezeDays": 3,

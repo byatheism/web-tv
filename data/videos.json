@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 13,
   "videos": {
     "civilisation-01": {
       "title": "Цивилизация - 1. На грани выживания",
@@ -665,6 +665,78 @@
       "category": "Stone Simulator",
       "series": "Stone Simulator",
       "episode": 2
+    },
+    "god-of-war-01": {
+      "title": "God of War. Часть 1",
+      "durationSeconds": 7623,
+      "source": {
+        "type": "youtube",
+        "videoId": "jopplKjFVVQ"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "God of War",
+      "episode": 1
+    },
+    "god-of-war-02": {
+      "title": "God of War. Часть 2",
+      "durationSeconds": 4993,
+      "source": {
+        "type": "youtube",
+        "videoId": "-YDxeKkDhp0"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "God of War",
+      "episode": 2
+    },
+    "god-of-war-03": {
+      "title": "God of War. Часть 3",
+      "durationSeconds": 11189,
+      "source": {
+        "type": "youtube",
+        "videoId": "zR3V2JcGszA"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "God of War",
+      "episode": 3
+    },
+    "god-of-war-04": {
+      "title": "God of War. Часть 4",
+      "durationSeconds": 3479,
+      "source": {
+        "type": "youtube",
+        "videoId": "P04Epg4XjA0"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "God of War",
+      "episode": 4
+    },
+    "god-of-war-05": {
+      "title": "God of War. Часть 5",
+      "durationSeconds": 5945,
+      "source": {
+        "type": "youtube",
+        "videoId": "8mma57NR0Wg"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "God of War",
+      "episode": 5
+    },
+    "god-of-war-06": {
+      "title": "God of War. Часть 6",
+      "durationSeconds": 3144,
+      "source": {
+        "type": "youtube",
+        "videoId": "dLSeLAyCiFM"
+      },
+      "author": "ShoobahDoobah",
+      "category": "Игровые истории",
+      "series": "God of War",
+      "episode": 6
     }
   }
 }

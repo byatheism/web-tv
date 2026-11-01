@@ -80,9 +80,14 @@ export function generateRotation(catalog, schedule, history, now=Date.now()){
   const horizonHours=Number.isFinite(r.horizonHours)&&r.horizonHours>=24?r.horizonHours:168;
   const minRepeatHours=Number.isFinite(r.minRepeatHours)&&r.minRepeatHours>=0?r.minRepeatHours:12;
   const anchorMs=Date.parse(r.anchor), horizonMs=Math.max(anchorMs,now)+horizonHours*3600000;
+  // Series with their own rotation must never leak into broad category groups.
+  // This keeps game episodes in sequence while other game films still rotate.
+  const reservedSeries=new Set((r.groups||[]).filter(g=>g.type==='series').map(g=>g.value));
   const groups=(r.groups||[]).map((g,index)=>{
     if(!g||typeof g.id!=='string'||!g.id||!['series','category','ids'].includes(g.type))throw Error('Некорректная группа ротации');
-    return {...g,index,members:videoGroupMembers(catalog,g)};
+    const members=videoGroupMembers(catalog,g).filter(id=>g.type!=='category'||!reservedSeries.has(catalog.videos[id].series));
+    if(!members.length)throw Error('Пустая группа после исключения отдельных сериалов: '+g.id);
+    return {...g,index,members};
   });
   if(groups.length<2)throw Error('Для ротации нужны минимум две группы');
 
