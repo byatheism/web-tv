@@ -1,0 +1,130 @@
+name: Add video to DOC TV
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Ссылка YouTube: watch или playlist'
+        type: string
+        required: true
+      kind:
+        description: 'Что добавляем?'
+        type: choice
+        options:
+          - video
+          - playlist
+        default: video
+        required: true
+      media_type:
+        description: 'Раздел эфира'
+        type: choice
+        options:
+          - documentary
+          - game
+          - stone
+          - webcam
+        default: documentary
+        required: true
+      series:
+        description: 'Название сериала (для игрового плейлиста обязательно)'
+        type: string
+        required: false
+      episode:
+        description: 'Номер серии (только для одного видео; можно оставить пустым)'
+        type: string
+        required: false
+      title:
+        description: 'Своё название (необязательно, только для одного видео)'
+        type: string
+        required: false
+      duration_seconds:
+        description: 'Длительность в секундах (если YouTube её не определил)'
+        type: string
+        required: false
+
+# Video submissions can change ONLY data/videos.json, never workflows or player code.
+# The GitHub Actions token has repo-scoped privileges and is not exposed to the site.
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: doc-tv-add-video
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Установить компоненты для чтения метаданных YouTube
+        run: |
+          python -m pip install -q yt-dlp
+          npm install --no-save --no-package-lock --ignore-scripts puppeteer-core@24
+      - name: Проверить ссылку и подготовить каталог
+        env:
+          DOC_SOURCE: ${{ inputs.source }}
+          DOC_KIND: ${{ inputs.kind }}
+          DOC_MEDIA_TYPE: ${{ inputs.media_type }}
+          DOC_SERIES: ${{ inputs.series }}
+          DOC_EPISODE: ${{ inputs.episode }}
+          DOC_TITLE: ${{ inputs.title }}
+          DOC_DURATION: ${{ inputs.duration_seconds }}
+        run: node scripts/add-video.mjs
+      - name: Проверить программу перед предложением изменений
+        run: |
+          node --check scripts/video-admin.js
+          node --check scripts/add-video.mjs
+          npm test
+          npm run check
+      - name: Подготовить предложение с возможностью отмены
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="add-video/${GITHUB_RUN_ID}"
+          git switch -c "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- data/videos.json
+          changed="$(git diff --cached --name-only)"
+          if [[ "$changed" != "data/videos.json" ]]; then
+            echo "::error::Unexpected changes; expected only data/videos.json"
+            exit 1
+          fi
+          git commit -m 'Propose additions to DOC TV catalogue'
+          git push --set-upstream origin "$branch"
+          cat > /tmp/doc-tv-pr-body.md <<'BODY'
+          ## Изменения DOC TV
+          Добавлены записи в `data/videos.json` через защищённую форму GitHub Actions.
+
+          - Новые ролики и длительности проверены до создания предложения
+          - Проверены данные, эфирная сетка и автоматические тесты
+          - Никакой код сайта или GitHub Actions не изменён
+          - После просмотра списка изменений можно нажать **Merge pull request**
+          - После слияния основной механизм DOC TV обновит трёхдневное расписание
+
+          Если материал не подходит, просто закройте это предложение.
+          BODY
+          if gh pr create --base main --head "$branch" --title "DOC TV: добавить видео (заявка #${GITHUB_RUN_ID})" --body-file /tmp/doc-tv-pr-body.md; then
+            echo '### Предложение создано' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Откройте Pull requests и проверьте изменения перед Merge.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::The repository may prohibit GitHub Actions from creating pull requests."
+            echo "### Требуется создать Pull Request вручную" >> "$GITHUB_STEP_SUMMARY"
+            echo "Изменения сохранены в ветке \`$branch\`." >> "$GITHUB_STEP_SUMMARY"
+            echo "Откройте https://github.com/$GH_REPO/compare/main...$branch и нажмите **Create pull request**." >> "$GITHUB_STEP_SUMMARY"
+          fi
