@@ -84,7 +84,7 @@ async function metadataFor(entry,forceTitle=false){
     const o=await oembed(id);
     title=o.title||title;author=o.author||author;
   }
-  if((!duration&&params.mediaType!=='webcam')||!title){
+  if((!duration&&params.mediaType!=='webcam'&&!params.durationSeconds)||!title){
     const extra=await iframeMetadata(id);
     title=title||extra.title||'';
     duration=duration||Number(extra.duration)||0;
@@ -117,7 +117,7 @@ try{
   if(process.env.GITHUB_STEP_SUMMARY){
     const {appendFileSync}=await import('node:fs');
     appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-      '## Видео для DOC TV\n'+outcome.added.map(v=>'- '+v.title+' (\\`'+v.durationSeconds+' сек.\\`)').join('\n')+
+      '## Видео для DOC TV\n'+outcome.added.map(v=>'- '+v.title+' ('+v.durationSeconds+' сек.)'').join('\n')+
       '\n\nИзменения требуют подтверждения через Pull Request.\n');
   }
 }finally{
