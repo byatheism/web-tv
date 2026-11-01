@@ -37,8 +37,8 @@ test('fixed programme snapshot is usable or safely invalidated after catalogue c
    stale.programs.push({
      id:'must-not-survive-stale-snapshot',
      video:'civilisation-01',
-     start:'2026-10-31T20:00:00+03:00',
-     end:'2026-10-31T20:50:02+03:00'
+     start:new Date(at+30*86400000).toISOString(),
+     end:new Date(at+30*86400000+3000000).toISOString()
    });
    const fresh=validate(catalog,schedule,at,stale).programs;
    assert.equal(fresh.some(p=>p.id==='must-not-survive-stale-snapshot'),false);
