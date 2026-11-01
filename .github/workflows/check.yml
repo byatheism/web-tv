@@ -12,5 +12,7 @@ jobs:
           node-version: '22'
       - run: node --check assets/schedule.js
       - run: node --check assets/player.js
+      - run: node --check scripts/video-admin.js
+      - run: node --check scripts/add-video.mjs
       - run: npm test
       - run: npm run check
