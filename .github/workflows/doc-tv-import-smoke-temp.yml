@@ -29,6 +29,7 @@ jobs:
           DOC_MEDIA_TYPE: game
         run: |
           set +e
+          node --check scripts/add-video.mjs
           node scripts/add-video.mjs > /tmp/import-test.log 2>&1
           code=$?
           set -e
