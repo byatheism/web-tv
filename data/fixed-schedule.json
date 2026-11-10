@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-09T00:46:48.614Z",
-  "freezeUntil": "2026-11-12T00:46:48.614Z",
+  "generatedAt": "2026-11-10T03:26:53.169Z",
+  "freezeUntil": "2026-11-13T03:26:53.169Z",
   "catalogVersion": 13,
   "scheduleVersion": 17,
   "sourceEdition": "god-of-war-series-20261101",
@@ -12068,6 +12068,363 @@
       "theme": "Прямой эфир - веб-камера",
       "rotationGroup": "webcams",
       "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611120400-god-of-war-god-of-war-05",
+      "video": "god-of-war-05",
+      "start": "2026-11-12T04:00:00.000+03:00",
+      "end": "2026-11-12T05:39:05.000+03:00",
+      "theme": "God of War",
+      "rotationGroup": "god-of-war",
+      "auto": true
+    },
+    {
+      "id": "stone-202611120539-stone-FK_pxbFJyIQ",
+      "video": "stone-FK_pxbFJyIQ",
+      "start": "2026-11-12T05:39:05.000+03:00",
+      "end": "2026-11-12T06:00:00.000+03:00",
+      "offsetSeconds": 4159,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611120600-earth-earth-bbc-01",
+      "video": "earth-bbc-01",
+      "start": "2026-11-12T06:00:00.000+03:00",
+      "end": "2026-11-12T06:52:06.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202611120652-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-11-12T06:52:06.000+03:00",
+      "end": "2026-11-12T07:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611120700-games-ashes-to-ashes-kcd2",
+      "video": "ashes-to-ashes-kcd2",
+      "start": "2026-11-12T07:00:00.000+03:00",
+      "end": "2026-11-12T07:20:57.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "filler-202611120720-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-11-12T07:20:57.000+03:00",
+      "end": "2026-11-12T08:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611120800-civilisation-civilisation-11",
+      "video": "civilisation-11",
+      "start": "2026-11-12T08:00:00.000+03:00",
+      "end": "2026-11-12T08:49:46.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "stone-202611120849-stone-xo3FZ0Fn68k",
+      "video": "stone-xo3FZ0Fn68k",
+      "start": "2026-11-12T08:49:46.000+03:00",
+      "end": "2026-11-12T09:00:00.000+03:00",
+      "offsetSeconds": 0,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611120900-voyages-voyages-discovery-04",
+      "video": "voyages-discovery-04",
+      "start": "2026-11-12T09:00:00.000+03:00",
+      "end": "2026-11-12T09:59:17.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202611120959-cam-tropical-reef",
+      "video": "cam-tropical-reef",
+      "start": "2026-11-12T09:59:17.000+03:00",
+      "end": "2026-11-12T10:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121000-documentaries-bbc-911",
+      "video": "bbc-911",
+      "start": "2026-11-12T10:00:00.000+03:00",
+      "end": "2026-11-12T10:58:43.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202611121058-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-11-12T10:58:43.000+03:00",
+      "end": "2026-11-12T11:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121100-god-of-war-god-of-war-06",
+      "video": "god-of-war-06",
+      "start": "2026-11-12T11:00:00.000+03:00",
+      "end": "2026-11-12T11:52:24.000+03:00",
+      "theme": "God of War",
+      "rotationGroup": "god-of-war",
+      "auto": true
+    },
+    {
+      "id": "stone-202611121152-stone-FK_pxbFJyIQ",
+      "video": "stone-FK_pxbFJyIQ",
+      "start": "2026-11-12T11:52:24.000+03:00",
+      "end": "2026-11-12T12:00:00.000+03:00",
+      "offsetSeconds": 1663,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121200-earth-earth-bbc-02",
+      "video": "earth-bbc-02",
+      "start": "2026-11-12T12:00:00.000+03:00",
+      "end": "2026-11-12T12:52:13.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202611121252-cam-utopia-back-channel",
+      "video": "cam-utopia-back-channel",
+      "start": "2026-11-12T12:52:13.000+03:00",
+      "end": "2026-11-12T13:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121300-games-one-eyed-likho-adventure",
+      "video": "one-eyed-likho-adventure",
+      "start": "2026-11-12T13:00:00.000+03:00",
+      "end": "2026-11-12T15:58:25.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "filler-202611121558-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-11-12T15:58:25.000+03:00",
+      "end": "2026-11-12T16:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121600-civilisation-civilisation-12",
+      "video": "civilisation-12",
+      "start": "2026-11-12T16:00:00.000+03:00",
+      "end": "2026-11-12T16:49:31.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "stone-202611121649-stone-xo3FZ0Fn68k",
+      "video": "stone-xo3FZ0Fn68k",
+      "start": "2026-11-12T16:49:31.000+03:00",
+      "end": "2026-11-12T17:00:00.000+03:00",
+      "offsetSeconds": 0,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121700-voyages-voyages-discovery-05",
+      "video": "voyages-discovery-05",
+      "start": "2026-11-12T17:00:00.000+03:00",
+      "end": "2026-11-12T17:58:01.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202611121758-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-11-12T17:58:01.000+03:00",
+      "end": "2026-11-12T18:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121800-documentaries-bbc-tutankhamun",
+      "video": "bbc-tutankhamun",
+      "start": "2026-11-12T18:00:00.000+03:00",
+      "end": "2026-11-12T18:44:04.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202611121844-cam-tropical-reef",
+      "video": "cam-tropical-reef",
+      "start": "2026-11-12T18:44:04.000+03:00",
+      "end": "2026-11-12T19:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611121900-god-of-war-god-of-war-01",
+      "video": "god-of-war-01",
+      "start": "2026-11-12T19:00:00.000+03:00",
+      "end": "2026-11-12T21:07:03.000+03:00",
+      "theme": "God of War",
+      "rotationGroup": "god-of-war",
+      "auto": true
+    },
+    {
+      "id": "stone-202611122107-stone-FK_pxbFJyIQ",
+      "video": "stone-FK_pxbFJyIQ",
+      "start": "2026-11-12T21:07:03.000+03:00",
+      "end": "2026-11-12T22:00:00.000+03:00",
+      "offsetSeconds": 5947,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611122200-earth-earth-bbc-03",
+      "video": "earth-bbc-03",
+      "start": "2026-11-12T22:00:00.000+03:00",
+      "end": "2026-11-12T22:51:08.000+03:00",
+      "theme": "Земля BBC",
+      "rotationGroup": "earth",
+      "auto": true
+    },
+    {
+      "id": "filler-202611122251-cam-utopia-sandy-channel",
+      "video": "cam-utopia-sandy-channel",
+      "start": "2026-11-12T22:51:08.000+03:00",
+      "end": "2026-11-12T23:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611122300-games-indika-religion-avantgarde",
+      "video": "indika-religion-avantgarde",
+      "start": "2026-11-12T23:00:00.000+03:00",
+      "end": "2026-11-13T01:54:42.000+03:00",
+      "theme": "Игровые истории",
+      "rotationGroup": "games",
+      "auto": true
+    },
+    {
+      "id": "filler-202611130154-cam-utopia-back-channel",
+      "video": "cam-utopia-back-channel",
+      "start": "2026-11-13T01:54:42.000+03:00",
+      "end": "2026-11-13T02:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611130200-civilisation-civilisation-13",
+      "video": "civilisation-13",
+      "start": "2026-11-13T02:00:00.000+03:00",
+      "end": "2026-11-13T02:51:05.000+03:00",
+      "theme": "Цивилизация",
+      "rotationGroup": "civilisation",
+      "auto": true
+    },
+    {
+      "id": "stone-202611130251-stone-xo3FZ0Fn68k",
+      "video": "stone-xo3FZ0Fn68k",
+      "start": "2026-11-13T02:51:05.000+03:00",
+      "end": "2026-11-13T03:00:00.000+03:00",
+      "offsetSeconds": 0,
+      "theme": "Stone Simulator",
+      "rotationGroup": "stone",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611130300-voyages-voyages-discovery-01",
+      "video": "voyages-discovery-01",
+      "start": "2026-11-13T03:00:00.000+03:00",
+      "end": "2026-11-13T03:58:57.000+03:00",
+      "theme": "Великие географические открытия",
+      "rotationGroup": "voyages",
+      "auto": true
+    },
+    {
+      "id": "filler-202611130358-cam-aquarium-pacific",
+      "video": "cam-aquarium-pacific",
+      "start": "2026-11-13T03:58:57.000+03:00",
+      "end": "2026-11-13T04:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611130400-documentaries-natgeo-earth-biography",
+      "video": "natgeo-earth-biography",
+      "start": "2026-11-13T04:00:00.000+03:00",
+      "end": "2026-11-13T05:33:59.000+03:00",
+      "theme": "Документальный фильм",
+      "rotationGroup": "documentaries",
+      "auto": true
+    },
+    {
+      "id": "filler-202611130533-cam-utopia-top-wall",
+      "video": "cam-utopia-top-wall",
+      "start": "2026-11-13T05:33:59.000+03:00",
+      "end": "2026-11-13T06:00:00.000+03:00",
+      "theme": "Прямой эфир - веб-камера",
+      "rotationGroup": "webcams",
+      "filler": true,
+      "auto": true
+    },
+    {
+      "id": "auto-202611130600-god-of-war-god-of-war-02",
+      "video": "god-of-war-02",
+      "start": "2026-11-13T06:00:00.000+03:00",
+      "end": "2026-11-13T07:23:13.000+03:00",
+      "theme": "God of War",
+      "rotationGroup": "god-of-war",
       "auto": true
     }
   ]
